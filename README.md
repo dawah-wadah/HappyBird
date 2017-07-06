@@ -6,7 +6,6 @@ Crappy Bird is a 2D infinite runner inspired by the notorious addicting game of 
 
 ### Functionality & MVP  
 
-With this Conway's Game of Life simulator, users will be able to:
 In this Flappy Bird Clone, users will be able to:
 
 - [ ] Keep flapping their little wings in order to avoid collisions with obstacles as well as the ground
@@ -65,4 +64,4 @@ This project will be implemented with the following technologies:
 Really diverge from the pact and use custom sprites, again dependent on how well I can design digitally and if inspiration hits me through at some point during the exercise
 
 - [ ] Make the background Parallax (may have to incorporate a library)
-- [ ] Incorporate cute chimp noises when the monkey jumps
+- [ ] Incoropate Firebase for a global highscore system
