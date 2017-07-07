@@ -1,8 +1,10 @@
-## Crappy Bird: A Flappy Bird Clone
+## Happy Bird (Name Subject to Change): A Flappy Bird Clone
+
+* [Try it Out Here] (https://dawah-wadah.github.io/HappyBird/)
 
 ### Background
 
-Crappy Bird is a 2D infinite runner inspired by the notorious addicting game of yesteryear; Flappy Bird
+Happy Bird is a 2D infinite runner inspired by the notorious addicting game of yesteryear; Flappy Bird
 
 ### Functionality & MVP  
 
@@ -30,7 +32,7 @@ This project will be implemented with the following technologies:
 
 - `JavaScript` for game logic
 -  `HTML` Canvas elements for effects
-- A yet to be determined physics engine
+- A yet to be determined physics engine, or perhaps write my own
 - `Webpack` to bundle js files.
 
 
