@@ -111,6 +111,8 @@ window.onload = function() {
       pipes.shift();
     }
   }, 800);
+
+  
   const trees = [];
 
   function getRandomIntInclusive(min, max) {
