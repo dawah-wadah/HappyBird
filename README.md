@@ -1,6 +1,6 @@
 ## Happy Bird (Name Subject to Change): A Flappy Bird Clone
 
-* [Try it Out Here] (https://dawah-wadah.github.io/HappyBird/)
+* [Try it Out Here](https://dawah-wadah.github.io/HappyBird/)
 
 ### Background
 
