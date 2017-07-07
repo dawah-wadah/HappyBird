@@ -89,7 +89,7 @@ window.onload = function() {
 
   const background = new __WEBPACK_IMPORTED_MODULE_3__background_js__["a" /* default */](canvas, ctx);
   const foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](canvas, ctx);
-  const bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx);
+  const bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, 200, 100, 100);
   const pipes = [];
 
   function generateRandomPipes(context, canvasObject) {
@@ -129,7 +129,7 @@ window.onload = function() {
 
   window.addEventListener('keydown', (e) => {
     switch (e.keyCode) {
-      case 38:
+      case 32:
         bird.jump();
         break;
       default:
@@ -165,10 +165,13 @@ window.onload = function() {
 
 "use strict";
 class Bird {
-  constructor(canvas, ctx) {
+  constructor(canvas, ctx, xPos, width, height) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.gravity = .4;
+    this.xPos = xPos;
+    this.width = width;
+    this.height = height;
     this.yPos = canvas.height / 2;
     this.yVel = 0;
     this.termVelocity = 4;
@@ -190,13 +193,13 @@ class Bird {
 
   render() {
     this.ctx.save();
-    this.ctx.translate(135, this.yPos + 50);
+    this.ctx.translate(this.xPos + this.width/2, this.yPos + this.height/2);
     if (this.yVel < 0) {
       this.ctx.rotate(-30 * Math.PI / 360);
     }
     if (this.yVel > 1 && this.yVel < 2) {
       this.ctx.rotate(45 * Math.PI / 360);
-      this.spritePicker = 2;
+      this.spritePicker = 1;
     }
     if (this.yVel > 2 && this.yVel < 3) {
       this.ctx.rotate(90 * Math.PI / 360);
@@ -206,9 +209,16 @@ class Bird {
       this.ctx.rotate(120 * Math.PI / 360);
       this.spritePicker = 2;
     }
-    this.ctx.translate(-135, -(this.yPos + 50));
+    this.ctx.translate(-(this.xPos + this.width/2), -(this.yPos + this.height/2));
     var spriteWidth = this.image.width / 3 * this.spritePicker;
-    this.ctx.drawImage(this.image, spriteWidth, 0, 64, 60, 100, this.yPos, 100, 100);
+    this.ctx.drawImage(this.image, spriteWidth,
+      0,
+      64,
+      60,
+      this.xPos,
+      this.yPos,
+      this.width,
+      this.height);
     this.ctx.restore();
   }
 
