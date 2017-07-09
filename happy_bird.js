@@ -290,11 +290,6 @@ render() {
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game_js__ = __webpack_require__(7);
-// import Bird from './bird.js';
-// import Foreground from './foreground.js';
-// import Tree from './tree.js';
-// import Background from './background.js';
-// import Pipe from './pipe.js';
 
 
 window.onload = function() {
@@ -303,95 +298,31 @@ window.onload = function() {
   canvas.height = 617;
   const frames = 0;
   const ctx = canvas.getContext('2d');
+  let gamePaused = false;
   const game = new __WEBPACK_IMPORTED_MODULE_0__game_js__["a" /* default */](canvas, ctx, frames);
-
-  // const background = new Background(canvas, ctx);
-  // const foreground = new Foreground(canvas, ctx);
-  // const bird = new Bird(canvas, ctx, 200, 100, 100);
-  // const pipes = [];
-  // const trees = [];
-  //
-  // function generateRandomPipes(context, canvasObject) {
-  //   let lengthTop = Math.round(Math.random() * 200 + 100);
-  //   let lengthBottom = canvasObject.height - 120 - lengthTop;
-  //   let returnVal = {};
-  //   returnVal.top = new Pipe(canvasObject.width, -5, lengthTop, 7, context, true);
-  //   returnVal.bottom = new Pipe(canvasObject.width,
-  //     canvasObject.height + 10 - lengthBottom, lengthBottom, 7, context, false);
-  //   return returnVal;
-  // }
-  //
-  //
-  // setInterval(function() {
-  //   let pipeSet = generateRandomPipes(ctx, canvas);
-  //   pipes.push(pipeSet.top, pipeSet.bottom);
-  //   if (pipes.length > 8) {
-  //     pipes.shift();
-  //     pipes.shift();
-  //   }
-  // }, 1200);
+  // let newGame = setTimeout(game.gameLoop, 1000 / 30);
 
 
 
-  // function getRandomIntInclusive(min, max) {
-  //   min = Math.ceil(min);
-  //   max = Math.floor(max);
-  //   return Math.floor(Math.random() * (max - min + 1)) + min;
-  // }
-  // setInterval(function() {
-  //   if (getRandomIntInclusive(20, 0) % 2 === 0) {
-  //     let shade = getRandomIntInclusive(0, 3);
-  //     trees.push(new Tree(canvas, ctx, canvas.width, shade));
-  //   }
-  // }, 600);
-  // ctx.fillStyle = '#FFF';
 
-
+// newGame();
   game.gameLoop();
 
-  window.addEventListener('keydown', (e) => {
+
+
+  window.addEventListener('keypress', (e) => {
+    console.log(e.keyCode);
     switch (e.keyCode) {
       case 32:
         game.bird.jump();
+        break;
+      case 112:
+      game.pauseGame();
         break;
       default:
         console.log('this is not the key you are looking for');
     }
   });
-
-  // function checkArrays() {
-  //
-  //   let fourPipes = pipes.slice(0,5);
-  //   fourPipes.forEach((pipe) => {
-  //     if (bird.yPos + bird.height >= pipe.yPos
-  //       && bird.yPos <= pipe.yPos + pipe.length
-  //       && bird.xPos + bird.width >= pipe.xPos
-  //       && bird.xPos <= pipe.xPos + pipe.width) {
-  //       console.log('shit collide');
-  //     }
-  //   });
-  // }
-  //
-  //
-  // function gameLoop() {
-  //   checkArrays();
-  //   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  //   background.update();
-  //   background.render();
-  //   trees.forEach((tree) => {
-  //     tree.update();
-  //     tree.render();
-  //   });
-  //   bird.update();
-  //   bird.render();
-  //   pipes.forEach((pipe) => {
-  //     pipe.update();
-  //     pipe.render();
-  //   });
-  //   foreground.update();
-  //   foreground.render();
-  //   window.requestAnimationFrame(gameLoop);
-  // }
 };
 
 
@@ -529,11 +460,13 @@ class Game {
     this.canvas = canvas;
     this.ctx = ctx;
     this.frames = frames;
+    this.state = false;
     this.background = new __WEBPACK_IMPORTED_MODULE_3__background_js__["a" /* default */](this.canvas, this.ctx);
     this.foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](this.canvas, this.ctx);
     this.bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, 200, 100, 100);
     this.pipes = [];
     this.trees = [];
+    this.gameID = 0;
 
 
     this._generateRandomPipes = this._generateRandomPipes.bind(this);
@@ -541,6 +474,30 @@ class Game {
     this.checkArrays = this.checkArrays.bind(this);
     this.assetsMaker = this.assetsMaker.bind(this);
     this.gameLoop = this.gameLoop.bind(this);
+    this.isRunning = this.isRunning.bind(this);
+  }
+
+  isRunning(){
+    let game;
+    if (!this.state){
+      return (game = window.requestAnimationFrame(this.gameLoop));
+    } else {
+     return (window.cancelAnimationFrame(game));
+    }
+
+  }
+
+  pauseGame() {
+    if (!this.state) {
+      this.state = true;
+      console.log('paused');
+
+    } else {
+      console.log('unpaused');
+      this.gameID = window.requestAnimationFrame(this.gameLoop);
+      this.state = false;
+
+    }
   }
 
 
@@ -568,6 +525,11 @@ class Game {
       this.pipes.shift();
       this.pipes.shift();
     }
+    if (this.trees.length > 10) {
+      this.trees.shift();
+      this.trees.shift();
+      this.trees.shift();
+    }
   }
 
   _getRandomIntInclusive(min, max) {
@@ -591,6 +553,9 @@ class Game {
   }
 
   gameLoop() {
+    console.log(this.pipes.length);
+    console.log(this.trees.length);
+
     this.frames++;
     this.assetsMaker();
     this.checkArrays();
@@ -609,7 +574,11 @@ class Game {
     });
     this.foreground.update();
     this.foreground.render();
-    window.requestAnimationFrame(this.gameLoop);
+    if (!this.state){
+      this.gameID = window.requestAnimationFrame(this.gameLoop);
+    } else {
+      window.cancelAnimationFrame(this.gameID);
+    }
   }
 
 }
