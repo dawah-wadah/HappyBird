@@ -140,7 +140,8 @@ class Game {
     this.pipes = [];
     this.trees = [];
     this.gameID = 0;
-    this.score = 9;
+    this.score = 20;
+    this.highscore = 0;
     this.scoreTracker = new __WEBPACK_IMPORTED_MODULE_5__score_js__["a" /* default */](this.canvas, this.ctx, 100, 100);
     this.scoreCard = new __WEBPACK_IMPORTED_MODULE_6__scoreCard__["a" /* default */](this.canvas, this.ctx);
     this.collisionSound = new Audio();
@@ -264,6 +265,7 @@ class Game {
   }
 
   gameSplashScreen(){
+
     this.background.update();
     this._assetsUpdater(this.foreground, true);
     this._assetsUpdater(this.bird, true);
@@ -292,12 +294,15 @@ class Game {
   }
 
   gameOverScreen(){
+    if(this.score > this.highscore){
+      this.highscore = this.score;
+    }
     this._assetsUpdater(this.trees, false);
     this._assetsUpdater(this.pipes, false);
     this._assetsUpdater(this.foreground, false);
     this._assetsUpdater(this.bird, true);
     this._assetsUpdater(this.scoreTracker, false);
-    this.scoreCard.update(this.score);
+    this.scoreCard.update(this.score, this.highscore);
     this._assetsUpdater(this.scoreCard, false);
   }
 
@@ -906,7 +911,7 @@ const scoreCardAnimation = {
     height: 58,
   },
   9: {
-    x: 433,
+    x: 434,
     y: 69,
     width: 38,
     height: 58,
@@ -932,6 +937,7 @@ class ScoreCard {
     this.x = 655;
     this.y = 482;
     this.score = 0;
+    this.highscore = 0;
     this.imageHeight = 145;
     this.imageWidth = 290;
     this.width = 290 * 2;
@@ -945,8 +951,9 @@ class ScoreCard {
     this.scoreImage.src = 'res/numbers.png';
   }
 
-  update(score) {
+  update(score, highscore) {
     this.score = score;
+    this.highscore = highscore;
     let middle = this.canvas.height / 2 - this.height / 2;
     this.yPos += this.yVel;
     if (this.yPos < middle) {
@@ -958,6 +965,8 @@ class ScoreCard {
     }
   }
   render() {
+
+    // score
     this.ctx.drawImage(this.image,
       this.x,
       this.y,
@@ -978,8 +987,8 @@ class ScoreCard {
         __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score].height,
         this.xPos + 470,
         this.yPos + 90,
-        6 * 7,
-        7 * 7
+        42,
+        49
       );
     } else {
       this.ctx.drawImage(this.scoreImage,
@@ -987,20 +996,54 @@ class ScoreCard {
         __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.score - this.score % 10) / 10].y,
         __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.score - this.score % 10) / 10].width,
         __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.score - this.score % 10) / 10].height,
-        this.xPos - this.width / 2,
-        this.yPos,
-        this.width/ 8,
-        this.height/ 8
+        this.xPos + 440,
+        this.yPos + 90,
+        42,
+        49
       );
       this.ctx.drawImage(this.scoreImage,
         __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score % 10].x,
         __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score % 10].y,
-        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score % 10].width / 8,
-        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score % 10].height / 8,
-        this.xPos + this.width / 2,
-        this.yPos,
-        this.width/ 8,
-        this.height/ 8
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score % 10].width,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score % 10].height,
+        this.xPos + 490,
+        this.yPos + 90,
+        42,
+        49
+      );
+    }
+    if (this.highscore < 10) {
+
+      this.ctx.drawImage(this.scoreImage,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.highscore].x,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.highscore].y,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.highscore].width,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.highscore].height,
+        this.xPos + 470,
+        this.yPos + 190,
+        42,
+        49
+      );
+    } else {
+      this.ctx.drawImage(this.scoreImage,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.highscore - this.highscore % 10) / 10].x,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.highscore - this.highscore % 10) / 10].y,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.highscore - this.highscore % 10) / 10].width,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.highscore - this.highscore % 10) / 10].height,
+        this.xPos + 440,
+        this.yPos + 190,
+        42,
+        49
+      );
+      this.ctx.drawImage(this.scoreImage,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.highscore % 10].x,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.highscore % 10].y,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.highscore % 10].width,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.highscore % 10].height,
+        this.xPos + 490,
+        this.yPos + 190,
+        42,
+        49
       );
 
     }
