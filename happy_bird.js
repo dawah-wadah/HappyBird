@@ -117,6 +117,8 @@ window.onload = function() {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__background_js__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pipe_js__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__score_js__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__scoreCard__ = __webpack_require__(10);
+
 
 
 
@@ -139,7 +141,8 @@ class Game {
     this.trees = [];
     this.gameID = 0;
     this.score = 9;
-    this.scoreCard = new __WEBPACK_IMPORTED_MODULE_5__score_js__["a" /* default */](this.canvas, this.ctx);
+    this.scoreTracker = new __WEBPACK_IMPORTED_MODULE_5__score_js__["a" /* default */](this.canvas, this.ctx, 100, 100);
+    this.scoreCard = new __WEBPACK_IMPORTED_MODULE_6__scoreCard__["a" /* default */](this.canvas, this.ctx);
     this.collisionSound = new Audio();
     this.collisionSound.src = 'res/sounds/sfx_hit.wav';
     this.pointSound = new Audio();
@@ -153,6 +156,7 @@ class Game {
     this.gameLoop = this.gameLoop.bind(this);
     this.checkCollisions = this.checkCollisions.bind(this);
     this._assetsUpdater = this._assetsUpdater.bind(this);
+    this.gameRunningScreen = this.gameRunningScreen.bind(this);
   }
 
 
@@ -237,6 +241,7 @@ class Game {
       if (this._collided(this.bird, pipe)) {
         this.collisionSound.play();
         this.bird.die();
+        this.currentState = 'GameOver';
       }
     });
     if (this._collided(this.bird, this.foreground)) {
@@ -246,42 +251,54 @@ class Game {
 
   }
 
-  _assetsUpdater(assets){
-    if (assets.constructor === Array){
+  _assetsUpdater(assets, boolean) {
+    if (assets.constructor === Array) {
       assets.forEach((asset) => {
-        asset.update();
+        if (boolean) {asset.update();}
         asset.render();
       });
     } else {
-      assets.update();
+      if (boolean) {assets.update();}
       assets.render();
     }
   }
 
+  gameSplashScreen(){
+    this.background.update();
+    this._assetsUpdater(this.foreground, true);
+    this._assetsUpdater(this.bird, true);
+  }
 
 
-  gameRunningScreen(){
-          this.assetsMaker();
-          this.checkCollisions();
-          this.background.update();
-          this.scoreCard.render();
-          this._assetsUpdater(this.trees);
-          this.bird.update();
-          this.bird.render();
-          this.pipes.forEach((pipe) => {
-            if (pipe.passedBird(this.bird)){
-              if (!pipe.checked){
-                pipe.checked = true;
-                this.score += .5;
-                this.pointSound.play();
 
-              }
-            }
-            pipe.update();
-            pipe.render();
-          });
-          this.foreground.update();
-          this.foreground.render();
+  gameRunningScreen() {
+    this.assetsMaker();
+    this.checkCollisions();
+    this.background.update();
+    this.scoreTracker.render();
+    this._assetsUpdater(this.trees, true);
+    this._assetsUpdater(this.bird, true);
+    this.pipes.forEach((pipe) => {
+      if (pipe.passedBird(this.bird)) {
+        if (!pipe.checked) {
+          pipe.checked = true;
+          this.score += .5;
+          this.pointSound.play();
+        }
+      }
+      this._assetsUpdater(pipe, true);
+    });
+    this._assetsUpdater(this.foreground);
+  }
+
+  gameOverScreen(){
+    this._assetsUpdater(this.trees, false);
+    this._assetsUpdater(this.pipes, false);
+    this._assetsUpdater(this.foreground, false);
+    this._assetsUpdater(this.bird, true);
+    this._assetsUpdater(this.scoreTracker, false);
+    this.scoreCard.update(this.score);
+    this._assetsUpdater(this.scoreCard, false);
   }
 
 
@@ -289,46 +306,14 @@ class Game {
     this.frames++;
 
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.scoreCard.update(Math.floor(this.score));
+    this.scoreTracker.update(Math.floor(this.score));
     this.background.render();
     if (!this.bird.dead) {
-
-      this.assetsMaker();
-      this.checkCollisions();
-      this.background.update();
-      this.scoreCard.render();
-      this._assetsUpdater(this.trees);
-      this.bird.update();
-      this.bird.render();
-      this.pipes.forEach((pipe) => {
-        if (pipe.passedBird(this.bird)){
-          if (!pipe.checked){
-            pipe.checked = true;
-            this.score += .5;
-            this.pointSound.play();
-
-          }
-        }
-        pipe.update();
-        pipe.render();
-      });
-      this.foreground.update();
-      this.foreground.render();
+      this.gameRunningScreen();
     } else {
-      this.trees.forEach((tree) => {
-        tree.render();
-      });
-      this.bird.update();
-      this.bird.render();
-      this.pipes.forEach((pipe) => {
-        pipe.render();
-      });
-      this.foreground.render();
-      this.bird.update();
-      this.bird.render();
-      this.scoreCard.render();
+      this.gameOverScreen();
     }
-    if (this.currentState === 'Running') {
+    if (this.currentState !== 'Paused' ) {
       this.gameID = window.requestAnimationFrame(this.gameLoop);
     } else {
       window.cancelAnimationFrame(this.gameID);
@@ -728,12 +713,12 @@ class Pipe {
 
 
 class Score {
-  constructor(canvas, ctx) {
+  constructor(canvas, ctx, width, height) {
     this.canvas = canvas;
     this.ctx = ctx;
     this.score = 0;
-    this.width = 100;
-    this.height = 100;
+    this.width = width;
+    this.height = height;
     this.xPos = this.canvas.width /2 - this.width;
     this.yPos = this.height;
     this.image = new Image();
@@ -799,72 +784,230 @@ if (this.score < 10) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const scoreAnimation = [
-  {
-    x: 225 / 4 * 0 ,
+const scoreAnimation = [{
+    x: 225 / 4 * 0,
     y: 249 / 3 * 0,
-    width:225 / 4 ,
-    height: 249/ 3,
+    width: 225 / 4,
+    height: 249 / 3,
   },
   {
-    x: 225 / 4 * 1 ,
+    x: 225 / 4 * 1,
     y: 249 / 3 * 0,
-    width:225 / 4 ,
-    height: 249/ 3,
+    width: 225 / 4,
+    height: 249 / 3,
   },
   {
-    x: 225 / 4 * 2 ,
+    x: 225 / 4 * 2,
     y: 249 / 3 * 0,
-    width:225 / 4 ,
-    height: 249/ 3,
+    width: 225 / 4,
+    height: 249 / 3,
   },
   {
-    x: 225 / 4 * 3 ,
+    x: 225 / 4 * 3,
     y: 249 / 3 * 0,
-    width:225 / 4 ,
-    height: 249/ 3,
+    width: 225 / 4,
+    height: 249 / 3,
   },
   {
-    x: 225 / 4 * 0 ,
+    x: 225 / 4 * 0,
     y: 249 / 3 * 1,
-    width:225 / 4 ,
-    height: 249/ 3,
+    width: 225 / 4,
+    height: 249 / 3,
   },
   {
-    x: 225 / 4 * 1 ,
+    x: 225 / 4 * 1,
     y: 249 / 3 * 1,
-    width:225 / 4 ,
-    height: 249/ 3,
+    width: 225 / 4,
+    height: 249 / 3,
   },
   {
-    x: 225 / 4 * 2 ,
+    x: 225 / 4 * 2,
     y: 249 / 3 * 1,
-    width:225 / 4 ,
-    height: 249/ 3,
+    width: 225 / 4,
+    height: 249 / 3,
   },
   {
-    x: 225 / 4 * 3 ,
+    x: 225 / 4 * 3,
     y: 249 / 3 * 1,
-    width:225 / 4 ,
-    height: 249/ 3,
+    width: 225 / 4,
+    height: 249 / 3,
   },
   {
-    x: 225 / 4 * 0 ,
+    x: 225 / 4 * 0,
     y: 249 / 3 * 2,
-    width:225 / 4 ,
-    height: 249/ 3,
+    width: 225 / 4,
+    height: 249 / 3,
   },
   {
-    x: 225 / 4 * 1 ,
+    x: 225 / 4 * 1,
     y: 249 / 3 * 2,
-    width:225 / 4 ,
-    height: 249/ 3,
+    width: 225 / 4,
+    height: 249 / 3,
   },
 
 
 ];
 /* harmony export (immutable) */ __webpack_exports__["a"] = scoreAnimation;
 
+
+const scoreCardAnimation = {
+  0: {
+    x: 395,
+    y: 69,
+    width: 38,
+    height: 58,
+  },
+  1: {
+    x: 227,
+    y: 127,
+    width: 3,
+    height: 7,
+  },
+  2: {
+    x: 251,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  3: {
+    x: 151,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  4: {
+    x: 114,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  5: {
+    x: 75,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  6: {
+    x: 37,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  7: {
+    x: 0,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  8: {
+    x: 471,
+    y: 69,
+    width: 38,
+    height: 58,
+  },
+  9: {
+    x: 433,
+    y: 69,
+    width: 38,
+    height: 58,
+  },
+};
+/* harmony export (immutable) */ __webpack_exports__["b"] = scoreCardAnimation;
+
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__score_animation_js__ = __webpack_require__(9);
+
+
+
+class ScoreCard {
+  constructor(canvas, ctx) {
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.x = 655;
+    this.y = 482;
+    this.score = 0;
+    this.imageHeight = 145;
+    this.imageWidth = 290;
+    this.width = 290 * 2;
+    this.height = 145 * 2;
+    this.yVel = 0;
+    this.xPos = this.canvas.width / 2 - this.width / 2;
+    this.yPos = 0;
+    this.image = new Image();
+    this.image.src = 'res/TheBird.png';
+    this.scoreImage = new Image();
+    this.scoreImage.src = 'res/numbers.png';
+  }
+
+  update(score) {
+    this.score = score;
+    let middle = this.canvas.height / 2 - this.height / 2;
+    this.yPos += this.yVel;
+    if (this.yPos < middle) {
+      this.yVel += 2;
+    } else {
+      this.yVel = 0;
+      this.gravity = 0;
+      this.yPos = middle;
+    }
+  }
+  render() {
+    this.ctx.drawImage(this.image,
+      this.x,
+      this.y,
+      this.imageWidth,
+      this.imageHeight,
+      this.xPos,
+      this.yPos,
+      this.width,
+      this.height
+    );
+
+    if (this.score < 10) {
+
+      this.ctx.drawImage(this.scoreImage,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score].x,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score].y,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score].width,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score].height,
+        this.xPos + 470,
+        this.yPos + 90,
+        6 * 7,
+        7 * 7
+      );
+    } else {
+      this.ctx.drawImage(this.scoreImage,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.score - this.score % 10) / 10].x,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.score - this.score % 10) / 10].y,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.score - this.score % 10) / 10].width,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][(this.score - this.score % 10) / 10].height,
+        this.xPos - this.width / 2,
+        this.yPos,
+        this.width/ 8,
+        this.height/ 8
+      );
+      this.ctx.drawImage(this.scoreImage,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score % 10].x,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score % 10].y,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score % 10].width / 8,
+        __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["b" /* scoreCardAnimation */][this.score % 10].height / 8,
+        this.xPos + this.width / 2,
+        this.yPos,
+        this.width/ 8,
+        this.height/ 8
+      );
+
+    }
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (ScoreCard);
 
 
 /***/ })
