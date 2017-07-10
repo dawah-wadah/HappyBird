@@ -231,10 +231,7 @@ class Game {
     fourPipes.forEach((pipe) => {
       if (this._collided(this.bird, pipe)) {
         this.bird.die();
-        // this.pauseGame();
-
       }
-      // console.log(pipe.passedBird(this.bird));
     });
     if (this._collided(this.bird, this.foreground)) {
       console.log('hit floor');
@@ -266,6 +263,15 @@ class Game {
       this.foreground.update();
       this.foreground.render();
     } else {
+      this.trees.forEach((tree) => {
+        tree.render();
+      });
+      this.bird.update();
+      this.bird.render();
+      this.pipes.forEach((pipe) => {
+        pipe.render();
+      });
+      this.foreground.render();
       this.bird.update();
       this.bird.render();
     }
