@@ -92,7 +92,7 @@ window.onload = function() {
     console.log(e.keyCode);
     switch (e.keyCode) {
       case 32:
-      if (!game.bird.dead && !game.state) {  
+      if (!game.bird.dead && game.currentState === 'Running') {  
         game.bird.jump();
       }
         break;
@@ -127,9 +127,10 @@ window.onload = function() {
 class Game {
   constructor(canvas, ctx, frames) {
     this.canvas = canvas;
+    this.currentState = 'Running';
     this.ctx = ctx;
     this.frames = frames;
-    this.state = false;
+    // this.currentState = false;
     this.speed = 7;
     this.background = new __WEBPACK_IMPORTED_MODULE_3__background_js__["a" /* default */](this.canvas, this.ctx, this.speed);
     this.foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](this.canvas, this.ctx, this.speed);
@@ -137,7 +138,7 @@ class Game {
     this.pipes = [];
     this.trees = [];
     this.gameID = 0;
-    this.score = 0;
+    this.score = 9;
     this.scoreCard = new __WEBPACK_IMPORTED_MODULE_5__score_js__["a" /* default */](this.canvas, this.ctx);
     this.collisionSound = new Audio();
     this.collisionSound.src = 'res/sounds/sfx_hit.wav';
@@ -151,17 +152,18 @@ class Game {
     this.assetsMaker = this.assetsMaker.bind(this);
     this.gameLoop = this.gameLoop.bind(this);
     this.checkCollisions = this.checkCollisions.bind(this);
+    this._assetsUpdater = this._assetsUpdater.bind(this);
   }
 
 
   pauseGame() {
-    if (!this.state) {
-      this.state = true;
+    if (this.currentState === 'Running') {
+      this.currentState = 'Paused';
 
     } else {
       console.log('unpaused');
       this.gameID = window.requestAnimationFrame(this.gameLoop);
-      this.state = false;
+      this.currentState = 'Running';
 
     }
   }
@@ -244,23 +246,58 @@ class Game {
 
   }
 
+  _assetsUpdater(assets){
+    if (assets.constructor === Array){
+      assets.forEach((asset) => {
+        asset.update();
+        asset.render();
+      });
+    } else {
+      assets.update();
+      assets.render();
+    }
+  }
+
+
+
+  gameRunningScreen(){
+          this.assetsMaker();
+          this.checkCollisions();
+          this.background.update();
+          this.scoreCard.render();
+          this._assetsUpdater(this.trees);
+          this.bird.update();
+          this.bird.render();
+          this.pipes.forEach((pipe) => {
+            if (pipe.passedBird(this.bird)){
+              if (!pipe.checked){
+                pipe.checked = true;
+                this.score += .5;
+                this.pointSound.play();
+
+              }
+            }
+            pipe.update();
+            pipe.render();
+          });
+          this.foreground.update();
+          this.foreground.render();
+  }
+
 
   gameLoop() {
     this.frames++;
 
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.background.render();
     this.scoreCard.update(Math.floor(this.score));
-    this.scoreCard.render();
+    this.background.render();
     if (!this.bird.dead) {
 
       this.assetsMaker();
       this.checkCollisions();
       this.background.update();
-      this.trees.forEach((tree) => {
-        tree.update();
-        tree.render();
-      });
+      this.scoreCard.render();
+      this._assetsUpdater(this.trees);
       this.bird.update();
       this.bird.render();
       this.pipes.forEach((pipe) => {
@@ -289,8 +326,9 @@ class Game {
       this.foreground.render();
       this.bird.update();
       this.bird.render();
+      this.scoreCard.render();
     }
-    if (!this.state) {
+    if (this.currentState === 'Running') {
       this.gameID = window.requestAnimationFrame(this.gameLoop);
     } else {
       window.cancelAnimationFrame(this.gameID);
@@ -343,7 +381,7 @@ class Bird {
 
     if(this.dead){
       if (this.yPos < 490){
-        this.yVel += 3;
+        this.yVel += 2;
       } else {
         this.yVel = 0;
         this.gravity = 0;
