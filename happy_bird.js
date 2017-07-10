@@ -144,12 +144,12 @@ class Game {
     this.checkLowerCollisions = this.checkLowerCollisions.bind(this);
   }
 
-  isRunning(){
+  isRunning() {
     let game;
-    if (!this.state){
+    if (!this.state) {
       return (game = window.requestAnimationFrame(this.gameLoop));
     } else {
-     return (window.cancelAnimationFrame(game));
+      return (window.cancelAnimationFrame(game));
     }
 
   }
@@ -215,21 +215,37 @@ class Game {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  checkUpperCollisions(bird, pipe){
+  checkUpperCollisions(bird, pipe) {
     if (bird.yPos < pipe.length &&
-        bird.xPos + bird.width > pipe.xPos + pipe.width &&
-        bird.xPos < pipe.xPos + pipe.width){
-          console.log('collided with top');
-          this.pauseGame();
+      bird.xPos + bird.width > pipe.xPos + pipe.width &&
+      bird.xPos < pipe.xPos + pipe.width) {
+      console.log('collided with top');
 
-        }
+    }
   }
-  checkLowerCollisions(bird, pipe){
-    if (bird.yPos + bird.height >= pipe.yPos &&
-        bird.xPos + bird.width > pipe.xPos + pipe.width) {
-          // console.log('collided with bottom');
+  checkLowerCollisions(bird, pipe) {
+      let a = bird.yPos + bird.height >= pipe.yPos;
+      let b = bird.xPos < pipe.xPos + pipe.width;
+      let c = bird.xPos + bird.width > pipe.xPos + pipe.width;
+      let d = pipe.passedBird(bird);
 
-        }
+      if (a && b && c && d) {
+
+      console.log('collided with bottom');
+      console.log(`part a = ${a}`);
+      console.log(`part b = ${b}`);
+      console.log(`part c = ${c}`);
+      console.log(`bird Y pos = ${bird.yPos}`);
+      console.log(`bird X pos = ${bird.xPos}`);
+      console.log(`bird height = ${bird.height}`);
+      console.log(`bird width = ${bird.width}`);
+      console.log(`pipe X pos = ${pipe.xPos}`);
+      console.log(`pipe Y pos = ${pipe.yPos}`);
+      console.log(`pipe height = ${pipe.length}`);
+      console.log(`pipe width = ${pipe.width}`);
+
+      this.pauseGame();
+    }
   }
 
 
@@ -237,7 +253,7 @@ class Game {
 
     let fourPipes = this.pipes.slice(0, 5);
     fourPipes.forEach((pipe) => {
-      if (pipe.top){
+      if (pipe.top) {
         this.checkUpperCollisions(this.bird, pipe);
 
       } else {
@@ -253,9 +269,6 @@ class Game {
   }
 
   gameLoop() {
-    console.log(this.pipes.length);
-    console.log(this.trees.length);
-
     this.frames++;
     this.assetsMaker();
     this.checkArrays();
@@ -274,7 +287,7 @@ class Game {
     });
     this.foreground.update();
     this.foreground.render();
-    if (!this.state){
+    if (!this.state) {
       this.gameID = window.requestAnimationFrame(this.gameLoop);
     } else {
       window.cancelAnimationFrame(this.gameID);
@@ -602,6 +615,7 @@ class Pipe {
     // this.image.src = 'res/digletts.png';
     this.image.src = 'res/59894.png';
     this.top = top;
+    this.passedBird = this.passedBird.bind(this);
   }
 update() {
     this.xPos -= this.speed;
@@ -614,6 +628,10 @@ render() {
       this.ctx.drawImage(this.image, 85,
         323, 26, 160, this.xPos, this.yPos, this.width, this.length);
     }
+  }
+
+  passedBird(bird){
+    return (this.xPos + this.width < bird.xPos + bird.width);
   }
 }
 
