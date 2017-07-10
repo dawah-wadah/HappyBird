@@ -126,22 +126,23 @@ class Game {
     this.ctx = ctx;
     this.frames = frames;
     this.state = false;
-    this.background = new __WEBPACK_IMPORTED_MODULE_3__background_js__["a" /* default */](this.canvas, this.ctx);
-    this.foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](this.canvas, this.ctx);
-    this.bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, 200, 100, 100);
+    this.speed = 7;
+    this.background = new __WEBPACK_IMPORTED_MODULE_3__background_js__["a" /* default */](this.canvas, this.ctx, this.speed);
+    this.foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](this.canvas, this.ctx, this.speed);
+    this.bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, 200, 70, 50);
     this.pipes = [];
     this.trees = [];
     this.gameID = 0;
+    this.score = 0;
 
 
     this._generateRandomPipes = this._generateRandomPipes.bind(this);
     this._getRandomIntInclusive = this._getRandomIntInclusive.bind(this);
-    this.checkArrays = this.checkArrays.bind(this);
+    this.checkCollisions = this.checkCollisions.bind(this);
     this.assetsMaker = this.assetsMaker.bind(this);
     this.gameLoop = this.gameLoop.bind(this);
     this.isRunning = this.isRunning.bind(this);
-    this.checkUpperCollisions = this.checkUpperCollisions.bind(this);
-    this.checkLowerCollisions = this.checkLowerCollisions.bind(this);
+    this.checkCollisions = this.checkCollisions.bind(this);
   }
 
   isRunning() {
@@ -157,7 +158,6 @@ class Game {
   pauseGame() {
     if (!this.state) {
       this.state = true;
-      console.log('paused');
 
     } else {
       console.log('unpaused');
@@ -172,17 +172,16 @@ class Game {
     let lengthTop = Math.floor(Math.random() * 200 + 100);
     let lengthBottom = canvasObject.height - 150 - lengthTop;
     let returnVal = {};
-    let speed = 7;
     returnVal.top = new __WEBPACK_IMPORTED_MODULE_4__pipe_js__["a" /* default */](canvasObject.width,
       0,
       lengthTop,
-      speed,
+      this.speed,
       context,
       true);
     returnVal.bottom = new __WEBPACK_IMPORTED_MODULE_4__pipe_js__["a" /* default */](canvasObject.width,
       canvasObject.height - lengthBottom,
       lengthBottom,
-      speed,
+      this.speed,
       context,
       false);
     return returnVal;
@@ -194,7 +193,7 @@ class Game {
       this.pipes.push(pipeSet.top, pipeSet.bottom);
       if (this._getRandomIntInclusive(20, 0) % 2 === 0) {
         let shade = this._getRandomIntInclusive(0, 3);
-        this.trees.push(new __WEBPACK_IMPORTED_MODULE_2__tree_js__["a" /* default */](this.canvas, this.ctx, this.canvas.width, shade));
+        this.trees.push(new __WEBPACK_IMPORTED_MODULE_2__tree_js__["a" /* default */](this.canvas, this.ctx, this.canvas.width, shade, this.speed));
       }
     }
 
@@ -215,78 +214,61 @@ class Game {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  checkUpperCollisions(bird, pipe) {
-    if (bird.yPos < pipe.length &&
-      bird.xPos + bird.width > pipe.xPos + pipe.width &&
-      bird.xPos < pipe.xPos + pipe.width) {
-      console.log('collided with top');
-
-    }
-  }
-  checkLowerCollisions(bird, pipe) {
-      let a = bird.yPos + bird.height >= pipe.yPos;
-      let b = bird.xPos < pipe.xPos + pipe.width;
-      let c = bird.xPos + bird.width > pipe.xPos + pipe.width;
-      let d = pipe.passedBird(bird);
-
-      if (a && b && c && d) {
-
-      console.log('collided with bottom');
-      console.log(`part a = ${a}`);
-      console.log(`part b = ${b}`);
-      console.log(`part c = ${c}`);
-      console.log(`bird Y pos = ${bird.yPos}`);
-      console.log(`bird X pos = ${bird.xPos}`);
-      console.log(`bird height = ${bird.height}`);
-      console.log(`bird width = ${bird.width}`);
-      console.log(`pipe X pos = ${pipe.xPos}`);
-      console.log(`pipe Y pos = ${pipe.yPos}`);
-      console.log(`pipe height = ${pipe.length}`);
-      console.log(`pipe width = ${pipe.width}`);
-
-      this.pauseGame();
+  _collided(objA, objB) {
+    let a = objA.xPos < objB.xPos + objB.width;
+    let b = objA.xPos + objA.width > objB.xPos;
+    let c = objA.yPos < objB.yPos + objB.height;
+    let d = objA.height + objA.yPos > objB.yPos;
+    if (a && b && (c && d)) {
+      return true;
     }
   }
 
 
-  checkArrays() {
+  checkCollisions() {
 
     let fourPipes = this.pipes.slice(0, 5);
     fourPipes.forEach((pipe) => {
-      if (pipe.top) {
-        this.checkUpperCollisions(this.bird, pipe);
+      if (this._collided(this.bird, pipe)) {
+        this.bird.die();
+        // this.pauseGame();
 
-      } else {
-        this.checkLowerCollisions(this.bird, pipe);
       }
-      // if (this.bird.yPos + this.bird.height >= pipe.yPos &&
-      //   this.bird.yPos <= pipe.yPos + pipe.length &&
-      //   this.bird.xPos + this.bird.width >= pipe.xPos &&
-      //   this.bird.xPos <= pipe.xPos + pipe.width) {
-      //   console.log('shit collide');
-      // }
+      // console.log(pipe.passedBird(this.bird));
     });
+    if (this._collided(this.bird, this.foreground)) {
+      console.log('hit floor');
+    }
+
   }
 
+
   gameLoop() {
-    this.frames++;
-    this.assetsMaker();
-    this.checkArrays();
+
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.background.update();
+    this.frames++;
     this.background.render();
-    this.trees.forEach((tree) => {
-      tree.update();
-      tree.render();
-    });
-    this.bird.update();
-    this.bird.render();
-    this.pipes.forEach((pipe) => {
-      pipe.update();
-      pipe.render();
-    });
-    this.foreground.update();
-    this.foreground.render();
+    if (!this.bird.dead) {
+
+      this.assetsMaker();
+      this.checkCollisions();
+      this.background.update();
+      this.trees.forEach((tree) => {
+        tree.update();
+        tree.render();
+      });
+      this.bird.update();
+      this.bird.render();
+      this.pipes.forEach((pipe) => {
+        pipe.update();
+        pipe.render();
+      });
+      this.foreground.update();
+      this.foreground.render();
+    } else {
+      this.bird.update();
+      this.bird.render();
+    }
     if (!this.state) {
       this.gameID = window.requestAnimationFrame(this.gameLoop);
     } else {
@@ -323,17 +305,19 @@ class Bird {
     this.spritePicker = 0;
     this.image = new Image();
     this.image.src = 'res/flappybird2.png';
-    this.status =  this.status.bind(this);
+    this.die =  this.die.bind(this);
   }
 
   update() {
     this.frames += .3;
+    this.yPos += this.yVel;
     if (this.yVel < this.termVelocity) {
       this.yVel += this.gravity;
     }
     this.spritePicker = Math.floor(this.frames) % 3;
-    if (this.yPos + __WEBPACK_IMPORTED_MODULE_0__bird_Animations_js__["a" /* birdAnimation */][this.spritePicker].height < 505) {
-      this.yPos += this.yVel;
+
+    if(this.dead){
+      this.yVel += 10;
     }
   }
 
@@ -355,8 +339,19 @@ class Bird {
       this.ctx.rotate(70 * Math.PI / 360);
       this.spritePicker = 2;
     }
+    if (this.dead) {
+      this.ctx.rotate(90 * Math.PI / 360);
+      this.spritePicker = 2;
+    }
     this.ctx.translate(-(this.xPos + this.width/2), -(this.yPos + this.height/2));
     var spriteWidth = this.image.width / 3 * this.spritePicker;
+    //debugging
+
+    //
+    // this.ctx.fillStyle = '#FF0000';
+    // this.ctx.fillRect(this.xPos,this.yPos,this.width,this.height);
+
+
     this.ctx.drawImage(this.image,
       __WEBPACK_IMPORTED_MODULE_0__bird_Animations_js__["a" /* birdAnimation */][this.spritePicker].x,
       __WEBPACK_IMPORTED_MODULE_0__bird_Animations_js__["a" /* birdAnimation */][this.spritePicker].y,
@@ -364,10 +359,11 @@ class Bird {
       __WEBPACK_IMPORTED_MODULE_0__bird_Animations_js__["a" /* birdAnimation */][this.spritePicker].height,
       this.xPos,
       this.yPos,
-      __WEBPACK_IMPORTED_MODULE_0__bird_Animations_js__["a" /* birdAnimation */][this.spritePicker].width,
-      __WEBPACK_IMPORTED_MODULE_0__bird_Animations_js__["a" /* birdAnimation */][this.spritePicker].height
+      this.width,
+      this.height
     );
     this.ctx.restore();
+
   }
 
   jump() {
@@ -376,8 +372,8 @@ class Bird {
     this.frames += .1;
   }
 
-  status(){
-    return this.dead;
+  die(){
+  this.dead = true;
   }
 }
 
@@ -503,26 +499,28 @@ const birdAnimation = [
 
 "use strict";
 class Foreground {
-  constructor(canvas, ctx) {
+  constructor(canvas, ctx, speed) {
     this.canvas = canvas;
     this.ctx = ctx;
-    this.fgPos = 0;
-    this.fgSpeed = 4;
-    this.fgWidth = 336;
-    this.fgImg = new Image();
-    this.fgImg.src = 'res/ground.png';
+    this.xPos = 0;
+    this.speed = 16/(speed * 4);
+    this.width = 336;
+    this.height = 112;
+    this.yPos = 505;
+    this.image = new Image();
+    this.image.src = 'res/ground.png';
   }
-  
+
   update() {
-    this.fgPos -= this.fgSpeed;
-    if (this.fgPos < -this.fgWidth) {
-      this.fgPos = 0;
+    this.xPos -= this.speed;
+    if (this.xPos < -this.width) {
+      this.xPos = 0;
     }
   }
 
   render() {
-    for (var i = 0; i < this.canvas.width / this.fgWidth + 1; i++) {
-      this.ctx.drawImage(this.fgImg, this.fgPos + i * this.fgWidth, 505);
+    for (var i = 0; i < this.canvas.width / this.width + 1; i++) {
+      this.ctx.drawImage(this.image, this.xPos + i * this.width, this.yPos);
     }
   }
 }
@@ -536,13 +534,13 @@ class Foreground {
 
 "use strict";
 class Tree {
-  constructor(canvas, ctx, xPos, spritePicker) {
+  constructor(canvas, ctx, xPos, spritePicker, speed) {
     this.image = new Image();
     this.image.src = 'res/trees.png';
     this.treesWidth = 76;
     this.xPos = xPos;
     this.spritePicker = spritePicker;
-    this.speed = 4;
+    this.speed = 16/(speed * 4);
     this.canvas = canvas;
     this.ctx = ctx;
   }
@@ -569,11 +567,11 @@ class Tree {
 
 "use strict";
 class Background {
-  constructor(canvas, ctx) {
+  constructor(canvas, ctx, speed) {
     this.canvas = canvas;
     this.ctx = ctx;
     this.bgPos = 0;
-    this.bgSpeed = 2;
+    this.speed = speed / 7;
     this.bgWidth = 288;
     this.bgImg = new Image();
     this.bgImg.src = 'res/bg.png';
@@ -582,7 +580,7 @@ class Background {
 
 
 update() {
-    this.bgPos -= this.bgSpeed;
+    this.bgPos -= this.speed;
     if (this.bgPos < -this.bgWidth) {
       this.bgPos = 0;
     }
@@ -604,15 +602,14 @@ render() {
 
 "use strict";
 class Pipe {
-  constructor(xPos, yPos, length, speed, ctx, top) {
+  constructor(xPos, yPos, height, speed, ctx, top) {
     this.xPos = xPos;
     this.yPos = yPos;
-    this.length = length;
+    this.height = height;
     this.width = 100;
     this.speed = speed;
     this.ctx = ctx;
     this.image = new Image();
-    // this.image.src = 'res/digletts.png';
     this.image.src = 'res/59894.png';
     this.top = top;
     this.passedBird = this.passedBird.bind(this);
@@ -622,16 +619,20 @@ update() {
   }
 render() {
     if (this.top) {
+      this.ctx.fillStyle='#FFF';
       this.ctx.drawImage(this.image, 56,
-        323, 26, 160, this.xPos, this.yPos, this.width, this.length);
+        323, 26, 160, this.xPos, this.yPos, this.width, this.height);
     } else {
-      this.ctx.drawImage(this.image, 85,
-        323, 26, 160, this.xPos, this.yPos, this.width, this.length);
+      this.ctx.drawImage(this.image, 84,
+        323, 26, 160, this.xPos, this.yPos, this.width, this.height);
     }
   }
 
   passedBird(bird){
-    return (this.xPos + this.width < bird.xPos + bird.width);
+    if (this.xPos + this.width <= bird.xPos + bird.width &&
+        this.xPos <= bird.xPos){
+          return true;
+        } else { return false;}
   }
 }
 
