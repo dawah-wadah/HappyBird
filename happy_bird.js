@@ -92,7 +92,9 @@ window.onload = function() {
     console.log(e.keyCode);
     switch (e.keyCode) {
       case 32:
+      if (!game.bird.dead && !game.state) {  
         game.bird.jump();
+      }
         break;
       case 112:
       game.pauseGame();
@@ -189,7 +191,6 @@ class Game {
       let pipeSet = this._generateRandomPipes(this.ctx, this.canvas);
       this.pipes.push(pipeSet.top, pipeSet.bottom);
       if (this._getRandomIntInclusive(20, 0) % 2 === 0) {
-        // console.log('a tree grows in brooklyn');
         let shade = this._getRandomIntInclusive(0, 3);
         this.trees.push(new __WEBPACK_IMPORTED_MODULE_2__tree_js__["a" /* default */](this.canvas,
           this.ctx,
@@ -268,8 +269,7 @@ class Game {
             pipe.checked = true;
             this.score += .5;
             this.pointSound.play();
-            // if (this.score === Math.floor(this.score)){
-            // }
+
           }
         }
         pipe.update();
@@ -374,7 +374,8 @@ class Bird {
       this.ctx.rotate(120 * Math.PI / 360);
       this.spritePicker = 2;
     }
-    this.ctx.translate(-(this.xPos + this.width/2), -(this.yPos + this.height/2));
+    this.ctx.translate(-(this.xPos + this.width/2),
+    -(this.yPos + this.height/2));
     var spriteWidth = this.image.width / 3 * this.spritePicker;
     //debugging
 
