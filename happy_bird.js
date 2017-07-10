@@ -267,9 +267,9 @@ class Game {
           if (!pipe.checked){
             pipe.checked = true;
             this.score += .5;
-            if (this.score === Math.floor(this.score)){
-              this.pointSound.play();
-            }
+            this.pointSound.play();
+            // if (this.score === Math.floor(this.score)){
+            // }
           }
         }
         pipe.update();
@@ -712,6 +712,8 @@ update(score){
     // this.ctx.fillStyle = '#FF0000';
     // this.ctx.fillRect(this.xPos,this.yPos,this.width,this.height);
 
+if (this.score < 10) {
+
     this.ctx.drawImage(this.image,
       __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score].x,
       __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score].y,
@@ -722,6 +724,30 @@ update(score){
       this.width,
       this.height
     );
+  } else {
+    this.ctx.drawImage(this.image,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][(this.score - this.score % 10) / 10 ].x,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][(this.score - this.score % 10) / 10 ].y,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][(this.score - this.score % 10) / 10 ].width,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][(this.score - this.score % 10) / 10 ].height,
+      this.xPos - this.width / 2,
+      this.yPos,
+      this.width,
+      this.height
+    );
+    this.ctx.drawImage(this.image,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score % 10 ].x,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score % 10 ].y,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score % 10 ].width,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score % 10 ].height,
+      this.xPos + this.width / 2,
+      this.yPos,
+      this.width,
+      this.height
+    );
+
+
+  }
 
   }
 }
