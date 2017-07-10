@@ -114,6 +114,8 @@ window.onload = function() {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tree_js__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__background_js__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pipe_js__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__score_js__ = __webpack_require__(8);
+
 
 
 
@@ -129,11 +131,12 @@ class Game {
     this.speed = 7;
     this.background = new __WEBPACK_IMPORTED_MODULE_3__background_js__["a" /* default */](this.canvas, this.ctx, this.speed);
     this.foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](this.canvas, this.ctx, this.speed);
-    this.bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, 200, 70, 50);
+    this.bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, 200, 70, 48);
     this.pipes = [];
     this.trees = [];
     this.gameID = 0;
     this.score = 0;
+    this.scoreCard = new __WEBPACK_IMPORTED_MODULE_5__score_js__["a" /* default */](this.canvas, this.ctx);
 
 
     this._generateRandomPipes = this._generateRandomPipes.bind(this);
@@ -141,19 +144,9 @@ class Game {
     this.checkCollisions = this.checkCollisions.bind(this);
     this.assetsMaker = this.assetsMaker.bind(this);
     this.gameLoop = this.gameLoop.bind(this);
-    this.isRunning = this.isRunning.bind(this);
     this.checkCollisions = this.checkCollisions.bind(this);
   }
 
-  isRunning() {
-    let game;
-    if (!this.state) {
-      return (game = window.requestAnimationFrame(this.gameLoop));
-    } else {
-      return (window.cancelAnimationFrame(game));
-    }
-
-  }
 
   pauseGame() {
     if (!this.state) {
@@ -192,8 +185,13 @@ class Game {
       let pipeSet = this._generateRandomPipes(this.ctx, this.canvas);
       this.pipes.push(pipeSet.top, pipeSet.bottom);
       if (this._getRandomIntInclusive(20, 0) % 2 === 0) {
+        // console.log('a tree grows in brooklyn');
         let shade = this._getRandomIntInclusive(0, 3);
-        this.trees.push(new __WEBPACK_IMPORTED_MODULE_2__tree_js__["a" /* default */](this.canvas, this.ctx, this.canvas.width, shade, this.speed));
+        this.trees.push(new __WEBPACK_IMPORTED_MODULE_2__tree_js__["a" /* default */](this.canvas,
+          this.ctx,
+          this.canvas.width,
+          shade,
+          this.speed));
       }
     }
 
@@ -215,8 +213,8 @@ class Game {
   }
 
   _collided(objA, objB) {
-    let a = objA.xPos < objB.xPos + objB.width;
-    let b = objA.xPos + objA.width > objB.xPos;
+    let a = objA.xPos < objB.xPos + objB.width - 5;
+    let b = objA.xPos + objA.width - 5 > objB.xPos;
     let c = objA.yPos < objB.yPos + objB.height;
     let d = objA.height + objA.yPos > objB.yPos;
     if (a && b && (c && d)) {
@@ -234,17 +232,20 @@ class Game {
       }
     });
     if (this._collided(this.bird, this.foreground)) {
-      console.log('hit floor');
+      this.bird.die();
     }
 
   }
 
 
   gameLoop() {
-
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.frames++;
+
+    console.log(this.score);
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.background.render();
+    this.scoreCard.update(Math.floor(this.score));
+    this.scoreCard.render();
     if (!this.bird.dead) {
 
       this.assetsMaker();
@@ -257,6 +258,12 @@ class Game {
       this.bird.update();
       this.bird.render();
       this.pipes.forEach((pipe) => {
+        if (pipe.passedBird(this.bird)){
+          if (!pipe.checked){
+            pipe.checked = true;
+            this.score += .5;
+          }
+        }
         pipe.update();
         pipe.render();
       });
@@ -323,7 +330,13 @@ class Bird {
     this.spritePicker = Math.floor(this.frames) % 3;
 
     if(this.dead){
-      this.yVel += 10;
+      if (this.yPos < 490){
+        this.yVel += 3;
+      } else {
+        this.yVel = 0;
+        this.gravity = 0;
+        this.yPos = 490;
+      }
     }
   }
 
@@ -346,7 +359,7 @@ class Bird {
       this.spritePicker = 2;
     }
     if (this.dead) {
-      this.ctx.rotate(90 * Math.PI / 360);
+      this.ctx.rotate(120 * Math.PI / 360);
       this.spritePicker = 2;
     }
     this.ctx.translate(-(this.xPos + this.width/2), -(this.yPos + this.height/2));
@@ -546,7 +559,7 @@ class Tree {
     this.treesWidth = 76;
     this.xPos = xPos;
     this.spritePicker = spritePicker;
-    this.speed = 16/(speed * 4);
+    this.speed = 16/(speed);
     this.canvas = canvas;
     this.ctx = ctx;
   }
@@ -576,9 +589,9 @@ class Background {
   constructor(canvas, ctx, speed) {
     this.canvas = canvas;
     this.ctx = ctx;
-    this.bgPos = 0;
+    this.xPos = 0;
     this.speed = speed / 7;
-    this.bgWidth = 288;
+    this.width = 288;
     this.bgImg = new Image();
     this.bgImg.src = 'res/bg.png';
   }
@@ -586,15 +599,15 @@ class Background {
 
 
 update() {
-    this.bgPos -= this.speed;
-    if (this.bgPos < -this.bgWidth) {
-      this.bgPos = 0;
+    this.xPos -= this.speed;
+    if (this.xPos < -this.width) {
+      this.xPos = 0;
     }
   }
 
 render() {
-    for (var i = 0; i < this.canvas.width / this.bgWidth + 1; i++) {
-      this.ctx.drawImage(this.bgImg, this.bgPos + i * this.bgWidth, 0);
+    for (var i = 0; i < this.canvas.width / this.width + 1; i++) {
+      this.ctx.drawImage(this.bgImg, this.xPos + i * this.width, 0);
     }
   }
 }
@@ -618,14 +631,16 @@ class Pipe {
     this.image = new Image();
     this.image.src = 'res/59894.png';
     this.top = top;
+    this.checked = false;
     this.passedBird = this.passedBird.bind(this);
   }
-update() {
+  update() {
     this.xPos -= this.speed;
   }
-render() {
+  render() {
+    // this.ctx.fillStyle = '#FF0000';
+    // this.ctx.fillRect(this.xPos, this.yPos, this.width, this.height);
     if (this.top) {
-      this.ctx.fillStyle='#FFF';
       this.ctx.drawImage(this.image, 56,
         323, 26, 160, this.xPos, this.yPos, this.width, this.height);
     } else {
@@ -634,15 +649,145 @@ render() {
     }
   }
 
-  passedBird(bird){
-    if (this.xPos + this.width <= bird.xPos + bird.width &&
-        this.xPos <= bird.xPos){
-          return true;
-        } else { return false;}
+  passedBird(bird, score) {
+    // if (this.xPos + this.width <= bird.xPos + bird.width &&
+    //     this.xPos <= bird.xPos)
+    let a = bird.xPos > this.xPos + this.width - 5;
+    // let b = bird.xPos + bird.width - 5 > this.xPos;
+
+    if (a) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (Pipe);
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__score_animation_js__ = __webpack_require__(9);
+
+
+class Score {
+  constructor(canvas, ctx) {
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.score = 0;
+    this.width = 100;
+    this.height = 100;
+    this.xPos = this.canvas.width /2 - this.width;
+    this.yPos = this.height;
+    this.image = new Image();
+    this.image.src = 'res/score.png';
+  }
+
+update(score){
+  this.score = score;
+}
+
+
+  render() {
+
+    //debugging
+
+    //
+    // this.ctx.fillStyle = '#FF0000';
+    // this.ctx.fillRect(this.xPos,this.yPos,this.width,this.height);
+
+    this.ctx.drawImage(this.image,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score].x,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score].y,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score].width,
+      __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score].height,
+      this.xPos,
+      this.yPos,
+      this.width,
+      this.height
+    );
+
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Score);
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const scoreAnimation = [
+  {
+    x: 225 / 4 * 0 ,
+    y: 249 / 3 * 0,
+    width:225 / 4 ,
+    height: 249/ 3,
+  },
+  {
+    x: 225 / 4 * 1 ,
+    y: 249 / 3 * 0,
+    width:225 / 4 ,
+    height: 249/ 3,
+  },
+  {
+    x: 225 / 4 * 2 ,
+    y: 249 / 3 * 0,
+    width:225 / 4 ,
+    height: 249/ 3,
+  },
+  {
+    x: 225 / 4 * 3 ,
+    y: 249 / 3 * 0,
+    width:225 / 4 ,
+    height: 249/ 3,
+  },
+  {
+    x: 225 / 4 * 0 ,
+    y: 249 / 3 * 1,
+    width:225 / 4 ,
+    height: 249/ 3,
+  },
+  {
+    x: 225 / 4 * 1 ,
+    y: 249 / 3 * 1,
+    width:225 / 4 ,
+    height: 249/ 3,
+  },
+  {
+    x: 225 / 4 * 2 ,
+    y: 249 / 3 * 1,
+    width:225 / 4 ,
+    height: 249/ 3,
+  },
+  {
+    x: 225 / 4 * 3 ,
+    y: 249 / 3 * 1,
+    width:225 / 4 ,
+    height: 249/ 3,
+  },
+  {
+    x: 225 / 4 * 0 ,
+    y: 249 / 3 * 2,
+    width:225 / 4 ,
+    height: 249/ 3,
+  },
+  {
+    x: 225 / 4 * 1 ,
+    y: 249 / 3 * 2,
+    width:225 / 4 ,
+    height: 249/ 3,
+  },
+
+
+];
+/* harmony export (immutable) */ __webpack_exports__["a"] = scoreAnimation;
+
 
 
 /***/ })
