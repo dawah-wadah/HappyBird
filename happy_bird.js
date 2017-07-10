@@ -137,6 +137,10 @@ class Game {
     this.gameID = 0;
     this.score = 0;
     this.scoreCard = new __WEBPACK_IMPORTED_MODULE_5__score_js__["a" /* default */](this.canvas, this.ctx);
+    this.collisionSound = new Audio();
+    this.collisionSound.src = 'res/sounds/sfx_hit.wav';
+    this.pointSound = new Audio();
+    this.pointSound.src = 'res/sounds/sfx_point.wav';
 
 
     this._generateRandomPipes = this._generateRandomPipes.bind(this);
@@ -228,10 +232,12 @@ class Game {
     let fourPipes = this.pipes.slice(0, 5);
     fourPipes.forEach((pipe) => {
       if (this._collided(this.bird, pipe)) {
+        this.collisionSound.play();
         this.bird.die();
       }
     });
     if (this._collided(this.bird, this.foreground)) {
+      this.collisionSound.play();
       this.bird.die();
     }
 
@@ -241,7 +247,6 @@ class Game {
   gameLoop() {
     this.frames++;
 
-    console.log(this.score);
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.background.render();
     this.scoreCard.update(Math.floor(this.score));
@@ -262,6 +267,9 @@ class Game {
           if (!pipe.checked){
             pipe.checked = true;
             this.score += .5;
+            if (this.score === Math.floor(this.score)){
+              this.pointSound.play();
+            }
           }
         }
         pipe.update();
@@ -319,6 +327,10 @@ class Bird {
     this.image = new Image();
     this.image.src = 'res/flappybird2.png';
     this.die =  this.die.bind(this);
+    this.deathSound = new Audio;
+    this.deathSound.src = 'res/sounds/sfx_die.wav';
+    this.flapSound = new Audio;
+    this.flapSound.src = 'res/sounds/sfx_wing.wav';
   }
 
   update() {
@@ -389,10 +401,12 @@ class Bird {
     this.spritePicker = 0;
     this.yVel = -9;
     this.frames += .1;
+    this.flapSound.play();
   }
 
   die(){
   this.dead = true;
+  this.deathSound.play();
   }
 }
 
@@ -695,8 +709,6 @@ update(score){
   render() {
 
     //debugging
-
-    //
     // this.ctx.fillStyle = '#FF0000';
     // this.ctx.fillRect(this.xPos,this.yPos,this.width,this.height);
 
