@@ -142,9 +142,9 @@ const scoreCardAnimation = {
     height: 58,
   },
   1: {
-    x: 227,
+    x: 229,
     y: 127,
-    width: 12,
+    width: 20,
     height: 58,
   },
   2: {
@@ -224,8 +224,22 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(e.keyCode);
     switch (e.keyCode) {
       case 32:
-      if (!game.bird.dead && game.currentState === 'Running') {
+
+      switch (game.currentState) {
+        case 'Splash':
+        game.currentState = 'Running';
         game.bird.jump();
+
+          break;
+        case 'Running':
+        game.bird.jump();
+
+          break;
+        case 'GameOver':
+        game.currentState = 'Splash';
+        game.reset();
+          break;
+        default:
       }
       break;
       case 112:
@@ -251,6 +265,8 @@ document.addEventListener("DOMContentLoaded", () => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pipe_js__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__score_js__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__scoreCard__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__splashScreen_js__ = __webpack_require__(11);
+
 
 
 
@@ -269,6 +285,7 @@ class Game {
     this.speed = 7;
     this.background = new __WEBPACK_IMPORTED_MODULE_3__background_js__["a" /* default */](this.canvas, this.ctx, this.speed);
     this.foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](this.canvas, this.ctx, this.speed);
+    this.splashScreen = new __WEBPACK_IMPORTED_MODULE_7__splashScreen_js__["a" /* default */](this.canvas, this.ctx);
     this.bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, 200, 70, 48);
     this.pipes = [];
     this.trees = [];
@@ -292,6 +309,18 @@ class Game {
     this._assetsUpdater = this._assetsUpdater.bind(this);
     this.gameRunningScreen = this.gameRunningScreen.bind(this);
     this.gameSplashScreen = this.gameSplashScreen.bind(this);
+  }
+
+  reset(){
+    this.score = 0;
+    this.bird.dead = false;
+    this.bird.frames = 0;
+    this.bird.gravity = .4;
+    this.bird.yPos = this.canvas.height / 2;
+    this.bird.yVel = 0;
+    this.pipes = [];
+    this.frames = 0;
+    this.trees = [];
   }
 
 
@@ -403,6 +432,7 @@ class Game {
     this.background.update();
     this._assetsUpdater(this.foreground, true);
     this._assetsUpdater(this.bird, false);
+    this.splashScreen.render();
   }
 
 
@@ -510,11 +540,9 @@ class Bird {
     this.frames += .09;
     this.spritePicker = Math.floor(this.frames) % 3;
     this.currentState = state;
+    this.yPos += this.yVel;
 
     switch (this.currentState) {
-      case 'Splash':
-        this.yPos += this.yVel;
-        break;
       case 'Running':
         if (this.yVel < this.termVelocity) {
           this.yVel += this.gravity;
@@ -1067,6 +1095,82 @@ class ScoreCard {
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (ScoreCard);
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__ = __webpack_require__(12);
+
+
+class SplashScreen {
+  constructor(canvas, ctx) {
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.height = 200;
+    this.width = 200;
+    this.xPos = this.canvas.width / 2 - this.width / 2;
+    this.yPos = this.canvas.height / 2 - this.height/ 2;
+    this.image = new Image();
+    this.image.src = 'res/TheBird2.png';
+
+  }
+
+  update(){
+
+  }
+
+  render(){
+    this.ctx.drawImage(this.image,
+      __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].getReadyIcon.x,
+      __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].getReadyIcon.y,
+      __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].getReadyIcon.width,
+      __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].getReadyIcon.height,
+      this.xPos,
+      this.yPos  - this.yPos/2,
+      this.width + 100,
+      this.height / 2
+    );
+    this.ctx.drawImage(this.image,
+      __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].tapIcon.x,
+      __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].tapIcon.y,
+      __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].tapIcon.width,
+      __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].tapIcon.height,
+      this.xPos,
+      this.yPos,
+      this.width + 100,
+      this.height
+    );
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (SplashScreen);
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const splashAnimation = {
+  getReadyIcon: {
+    x: 1098,
+    y:84,
+    width: 1340 - 1098,
+    height: 150 - 84
+  },
+  tapIcon: {
+    x: 898,
+    y: 175,
+    width: 1042 - 890,
+    height: 302 - 169,
+  }
+
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = splashAnimation;
+
 
 
 /***/ })
