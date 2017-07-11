@@ -411,6 +411,7 @@ class Game {
         this.currentState = 'GameOver';
       }
     });
+    
     if (this._collided(this.bird, this.foreground)) {
       this.collisionSound.play();
       this.bird.die();
@@ -627,7 +628,7 @@ class Bird {
 
   jump() {
     this.spritePicker = 0;
-    this.yVel = -9;
+    this.yVel = -8;
     this.frames += .1;
     this.flapSound.play();
   }
@@ -1181,7 +1182,7 @@ class SplashScreen {
 const splashAnimation = {
   getReadyIcon: {
     x: 1098,
-    y:84,
+    y: 84,
     width: 1340 - 1098,
     height: 150 - 84
   },
@@ -1224,10 +1225,12 @@ class Highscore {
 
   render() {
     let scoresY = this.scoreCard.yPos + this.scoreCard.height / 2;
+    this.ctx.font = "40px Georgia";
+    this.ctx.fillText('HIGHSCORES', this.scoreCard.xPos + 20, scoresY - 50);
     this.globalHighscores.forEach((score) => {
       this.ctx.font = "20px Georgia";
       this.ctx.fillText(`${score.username}`, this.scoreCard.xPos + 20, scoresY);
-      this.ctx.fillText(`${score.score}`, this.scoreCard.xPos + 150, scoresY);
+      this.ctx.fillText(`${score.score}`, this.scoreCard.xPos + 300, scoresY);
       scoresY += 25;
     });
   }
