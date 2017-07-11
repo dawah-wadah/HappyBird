@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -68,42 +68,136 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game_js__ = __webpack_require__(1);
+const scoreAnimation = [{
+    x: 225 / 4 * 0,
+    y: 249 / 3 * 0,
+    width: 225 / 4,
+    height: 249 / 3,
+  },
+  {
+    x: 225 / 4 * 1,
+    y: 249 / 3 * 0,
+    width: 225 / 4,
+    height: 249 / 3,
+  },
+  {
+    x: 225 / 4 * 2,
+    y: 249 / 3 * 0,
+    width: 225 / 4,
+    height: 249 / 3,
+  },
+  {
+    x: 225 / 4 * 3,
+    y: 249 / 3 * 0,
+    width: 225 / 4,
+    height: 249 / 3,
+  },
+  {
+    x: 225 / 4 * 0,
+    y: 249 / 3 * 1,
+    width: 225 / 4,
+    height: 249 / 3,
+  },
+  {
+    x: 225 / 4 * 1,
+    y: 249 / 3 * 1,
+    width: 225 / 4,
+    height: 249 / 3,
+  },
+  {
+    x: 225 / 4 * 2,
+    y: 249 / 3 * 1,
+    width: 225 / 4,
+    height: 249 / 3,
+  },
+  {
+    x: 225 / 4 * 3,
+    y: 249 / 3 * 1,
+    width: 225 / 4,
+    height: 249 / 3,
+  },
+  {
+    x: 225 / 4 * 0,
+    y: 249 / 3 * 2,
+    width: 225 / 4,
+    height: 249 / 3,
+  },
+  {
+    x: 225 / 4 * 1,
+    y: 249 / 3 * 2,
+    width: 225 / 4,
+    height: 249 / 3,
+  },
 
 
-window.onload = function() {
-  const canvas = document.getElementById('canvas');
-  canvas.width = 2000;
-  canvas.height = 617;
-  const frames = 0;
-  const ctx = canvas.getContext('2d');
-  let gamePaused = false;
-  const game = new __WEBPACK_IMPORTED_MODULE_0__game_js__["a" /* default */](canvas, ctx, frames);
+];
+/* harmony export (immutable) */ __webpack_exports__["a"] = scoreAnimation;
 
 
-
-
-  game.gameLoop();
-
-
-
-  window.addEventListener('keypress', (e) => {
-    console.log(e.keyCode);
-    switch (e.keyCode) {
-      case 32:
-      if (!game.bird.dead && game.currentState === 'Running') {  
-        game.bird.jump();
-      }
-        break;
-      case 112:
-      game.pauseGame();
-        break;
-      default:
-        console.log('this is not the key you are looking for');
-    }
-  });
+const scoreCardAnimation = {
+  0: {
+    x: 395,
+    y: 69,
+    width: 38,
+    height: 58,
+  },
+  1: {
+    x: 227,
+    y: 127,
+    width: 12,
+    height: 58,
+  },
+  2: {
+    x: 251,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  3: {
+    x: 151,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  4: {
+    x: 114,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  5: {
+    x: 75,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  6: {
+    x: 37,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  7: {
+    x: 0,
+    y: 127,
+    width: 38,
+    height: 58,
+  },
+  8: {
+    x: 471,
+    y: 69,
+    width: 38,
+    height: 58,
+  },
+  9: {
+    x: 434,
+    y: 69,
+    width: 38,
+    height: 58,
+  },
 };
+/* harmony export (immutable) */ __webpack_exports__["b"] = scoreCardAnimation;
+
 
 
 /***/ }),
@@ -111,12 +205,51 @@ window.onload = function() {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bird_js__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foreground_js__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tree_js__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__background_js__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pipe_js__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__score_js__ = __webpack_require__(8);
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game_js__ = __webpack_require__(2);
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 800;
+  canvas.height = 617;
+  const frames = 0;
+  const game = new __WEBPACK_IMPORTED_MODULE_0__game_js__["a" /* default */](canvas, ctx, frames);
+  game.gameLoop();
+
+  document.addEventListener('keypress', (e) => {
+    console.log(e.keyCode);
+    switch (e.keyCode) {
+      case 32:
+      if (!game.bird.dead && game.currentState === 'Running') {
+        game.bird.jump();
+      }
+      break;
+      case 112:
+      game.pauseGame();
+      break;
+      default:
+      console.log('this is not the key you are looking for');
+    }
+  });
+
+});
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bird_js__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foreground_js__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tree_js__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__background_js__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pipe_js__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__score_js__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__scoreCard__ = __webpack_require__(10);
 
 
@@ -140,7 +273,7 @@ class Game {
     this.pipes = [];
     this.trees = [];
     this.gameID = 0;
-    this.score = 20;
+    this.score = 0;
     this.highscore = 0;
     this.scoreTracker = new __WEBPACK_IMPORTED_MODULE_5__score_js__["a" /* default */](this.canvas, this.ctx, 100, 100);
     this.scoreCard = new __WEBPACK_IMPORTED_MODULE_6__scoreCard__["a" /* default */](this.canvas, this.ctx);
@@ -331,11 +464,11 @@ class Game {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bird_Animations_js__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bird_Animations_js__ = __webpack_require__(4);
 
 
 class Bird {
@@ -443,7 +576,7 @@ class Bird {
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -556,7 +689,7 @@ const birdAnimation = [
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -591,7 +724,7 @@ class Foreground {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -624,7 +757,7 @@ class Tree {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -659,7 +792,7 @@ render() {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -710,11 +843,11 @@ class Pipe {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__score_animation_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__score_animation_js__ = __webpack_require__(0);
 
 
 class Score {
@@ -742,7 +875,6 @@ update(score){
     // this.ctx.fillRect(this.xPos,this.yPos,this.width,this.height);
 
 if (this.score < 10) {
-
     this.ctx.drawImage(this.image,
       __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score].x,
       __WEBPACK_IMPORTED_MODULE_0__score_animation_js__["a" /* scoreAnimation */][this.score].y,
@@ -785,148 +917,11 @@ if (this.score < 10) {
 
 
 /***/ }),
-/* 9 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const scoreAnimation = [{
-    x: 225 / 4 * 0,
-    y: 249 / 3 * 0,
-    width: 225 / 4,
-    height: 249 / 3,
-  },
-  {
-    x: 225 / 4 * 1,
-    y: 249 / 3 * 0,
-    width: 225 / 4,
-    height: 249 / 3,
-  },
-  {
-    x: 225 / 4 * 2,
-    y: 249 / 3 * 0,
-    width: 225 / 4,
-    height: 249 / 3,
-  },
-  {
-    x: 225 / 4 * 3,
-    y: 249 / 3 * 0,
-    width: 225 / 4,
-    height: 249 / 3,
-  },
-  {
-    x: 225 / 4 * 0,
-    y: 249 / 3 * 1,
-    width: 225 / 4,
-    height: 249 / 3,
-  },
-  {
-    x: 225 / 4 * 1,
-    y: 249 / 3 * 1,
-    width: 225 / 4,
-    height: 249 / 3,
-  },
-  {
-    x: 225 / 4 * 2,
-    y: 249 / 3 * 1,
-    width: 225 / 4,
-    height: 249 / 3,
-  },
-  {
-    x: 225 / 4 * 3,
-    y: 249 / 3 * 1,
-    width: 225 / 4,
-    height: 249 / 3,
-  },
-  {
-    x: 225 / 4 * 0,
-    y: 249 / 3 * 2,
-    width: 225 / 4,
-    height: 249 / 3,
-  },
-  {
-    x: 225 / 4 * 1,
-    y: 249 / 3 * 2,
-    width: 225 / 4,
-    height: 249 / 3,
-  },
-
-
-];
-/* harmony export (immutable) */ __webpack_exports__["a"] = scoreAnimation;
-
-
-const scoreCardAnimation = {
-  0: {
-    x: 395,
-    y: 69,
-    width: 38,
-    height: 58,
-  },
-  1: {
-    x: 227,
-    y: 127,
-    width: 3,
-    height: 7,
-  },
-  2: {
-    x: 251,
-    y: 127,
-    width: 38,
-    height: 58,
-  },
-  3: {
-    x: 151,
-    y: 127,
-    width: 38,
-    height: 58,
-  },
-  4: {
-    x: 114,
-    y: 127,
-    width: 38,
-    height: 58,
-  },
-  5: {
-    x: 75,
-    y: 127,
-    width: 38,
-    height: 58,
-  },
-  6: {
-    x: 37,
-    y: 127,
-    width: 38,
-    height: 58,
-  },
-  7: {
-    x: 0,
-    y: 127,
-    width: 38,
-    height: 58,
-  },
-  8: {
-    x: 471,
-    y: 69,
-    width: 38,
-    height: 58,
-  },
-  9: {
-    x: 434,
-    y: 69,
-    width: 38,
-    height: 58,
-  },
-};
-/* harmony export (immutable) */ __webpack_exports__["b"] = scoreCardAnimation;
-
-
-
-/***/ }),
 /* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__score_animation_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__score_animation_js__ = __webpack_require__(0);
 
 
 
@@ -967,6 +962,7 @@ class ScoreCard {
   render() {
 
     // score
+
     this.ctx.drawImage(this.image,
       this.x,
       this.y,
