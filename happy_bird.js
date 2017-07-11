@@ -266,6 +266,8 @@ document.addEventListener("DOMContentLoaded", () => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__score_js__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__scoreCard__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__splashScreen_js__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__highscore_js__ = __webpack_require__(13);
+
 
 
 
@@ -286,14 +288,17 @@ class Game {
     this.background = new __WEBPACK_IMPORTED_MODULE_3__background_js__["a" /* default */](this.canvas, this.ctx, this.speed);
     this.foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](this.canvas, this.ctx, this.speed);
     this.splashScreen = new __WEBPACK_IMPORTED_MODULE_7__splashScreen_js__["a" /* default */](this.canvas, this.ctx);
+    this.playerName = prompt("Welcome to Happy Bird! Please enter your name for the leaderboards.");
     this.bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, 200, 70, 48);
     this.pipes = [];
     this.trees = [];
     this.gameID = 0;
     this.score = 0;
+    this.scorePushed = false;
     this.highscore = 0;
     this.scoreTracker = new __WEBPACK_IMPORTED_MODULE_5__score_js__["a" /* default */](this.canvas, this.ctx, 100, 100);
     this.scoreCard = new __WEBPACK_IMPORTED_MODULE_6__scoreCard__["a" /* default */](this.canvas, this.ctx);
+    this.highscores = new __WEBPACK_IMPORTED_MODULE_8__highscore_js__["a" /* default */](this.canvas, this.ctx, this.scoreCard);
     this.collisionSound = new Audio();
     this.collisionSound.src = 'res/sounds/sfx_hit.wav';
     this.pointSound = new Audio();
@@ -309,6 +314,7 @@ class Game {
     this._assetsUpdater = this._assetsUpdater.bind(this);
     this.gameRunningScreen = this.gameRunningScreen.bind(this);
     this.gameSplashScreen = this.gameSplashScreen.bind(this);
+    this.sendScore = this.sendScore.bind(this);
   }
 
   reset(){
@@ -370,13 +376,11 @@ class Game {
       }
     }
 
-    if (this.pipes.length > 6) {
+    if (this.pipes.length > 4) {
       this.pipes.splice(0, 2);
     }
     if (this.trees.length > 6) {
-      this.trees.shift();
-      this.trees.shift();
-      this.trees.shift();
+      this.trees.splice(0,1);
     }
   }
 
@@ -432,6 +436,9 @@ class Game {
     this._assetsUpdater(this.foreground, true);
     this._assetsUpdater(this.bird, false);
     this.splashScreen.render();
+    if (this.scorePushed){
+      this.scorePushed = false;
+    }
   }
 
 
@@ -456,6 +463,15 @@ class Game {
     this._assetsUpdater(this.foreground);
   }
 
+  sendScore(){
+    if (!this.scorePushed) {
+      this.scorePushed = true;
+      let newscore = window.firebase.database().ref("scores").push();
+      window.newscore = newscore;
+      newscore.set({username: this.playerName, score: parseInt(this.score)});
+    }
+  }
+
   gameOverScreen(){
     if(this.score > this.highscore){
       this.highscore = this.score;
@@ -467,6 +483,9 @@ class Game {
     this._assetsUpdater(this.scoreTracker, false);
     this.scoreCard.update(this.score, this.highscore);
     this._assetsUpdater(this.scoreCard, false);
+    this.sendScore();
+    this._assetsUpdater(this.highscores, true);
+
   }
 
 
@@ -980,6 +999,7 @@ class ScoreCard {
     this.y = 482;
     this.score = 0;
     this.highscore = 0;
+    this.globalHighscores = [];
     this.imageHeight = 145;
     this.imageWidth = 290;
     this.width = 290 * 2;
@@ -1005,7 +1025,11 @@ class ScoreCard {
       this.gravity = 0;
       this.yPos = middle;
     }
+
   }
+
+
+
   render() {
 
     // score
@@ -1089,6 +1113,7 @@ class ScoreCard {
         49
       );
 
+
     }
   }
 }
@@ -1170,6 +1195,46 @@ const splashAnimation = {
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = splashAnimation;
 
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class Highscore {
+  constructor(canvas, ctx, scoreCard) {
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.scoreCard = scoreCard;
+    this.globalHighscores = [];
+  }
+
+  update() {
+    let scoresTable = window.firebase.database().ref("scores");
+    scoresTable.orderByChild("score")
+      .limitToLast(5).on('value', (snapshot, highscores) => {
+        highscores = [];
+        snapshot.forEach((childSnapshot) => {
+          highscores.push((childSnapshot.val()));
+        });
+        this.globalHighscores = highscores.reverse();
+      });
+  }
+
+  render() {
+    let scoresY = this.scoreCard.yPos + this.scoreCard.height / 2;
+    this.globalHighscores.forEach((score) => {
+      this.ctx.font = "20px Georgia";
+      this.ctx.fillText(`${score.username}`, this.scoreCard.xPos + 20, scoresY);
+      this.ctx.fillText(`${score.score}`, this.scoreCard.xPos + 150, scoresY);
+      scoresY += 25;
+    });
+  }
+}
+
+
+/* harmony default export */ __webpack_exports__["a"] = (Highscore);
 
 
 /***/ })
