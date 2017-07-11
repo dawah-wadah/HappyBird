@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
 class Game {
   constructor(canvas, ctx, frames) {
     this.canvas = canvas;
-    this.currentState = 'Running';
+    this.currentState = 'Splash';
     this.ctx = ctx;
     this.frames = frames;
     // this.currentState = false;
@@ -291,6 +291,7 @@ class Game {
     this.checkCollisions = this.checkCollisions.bind(this);
     this._assetsUpdater = this._assetsUpdater.bind(this);
     this.gameRunningScreen = this.gameRunningScreen.bind(this);
+    this.gameSplashScreen = this.gameSplashScreen.bind(this);
   }
 
 
@@ -401,7 +402,7 @@ class Game {
 
     this.background.update();
     this._assetsUpdater(this.foreground, true);
-    this._assetsUpdater(this.bird, true);
+    this._assetsUpdater(this.bird, false);
   }
 
 
@@ -412,7 +413,7 @@ class Game {
     this.background.update();
     this.scoreTracker.render();
     this._assetsUpdater(this.trees, true);
-    this._assetsUpdater(this.bird, true);
+    this._assetsUpdater(this.bird, false);
     this.pipes.forEach((pipe) => {
       if (pipe.passedBird(this.bird)) {
         if (!pipe.checked) {
@@ -433,7 +434,7 @@ class Game {
     this._assetsUpdater(this.trees, false);
     this._assetsUpdater(this.pipes, false);
     this._assetsUpdater(this.foreground, false);
-    this._assetsUpdater(this.bird, true);
+    this._assetsUpdater(this.bird, false);
     this._assetsUpdater(this.scoreTracker, false);
     this.scoreCard.update(this.score, this.highscore);
     this._assetsUpdater(this.scoreCard, false);
@@ -442,15 +443,25 @@ class Game {
 
   gameLoop() {
     this.frames++;
-
+    this.bird.update(this.currentState);
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.scoreTracker.update(Math.floor(this.score));
     this.background.render();
-    if (!this.bird.dead) {
+
+    switch (this.currentState) {
+      case 'Splash':
+      this.gameSplashScreen();
+        break;
+      case 'Running':
       this.gameRunningScreen();
-    } else {
+
+        break;
+      case 'GameOver':
       this.gameOverScreen();
+        break;
+      default:
     }
+
     if (this.currentState !== 'Paused' ) {
       this.gameID = window.requestAnimationFrame(this.gameLoop);
     } else {
@@ -472,13 +483,14 @@ class Game {
 
 
 class Bird {
-  constructor(canvas, ctx, xPos, width, height) {
+  constructor(canvas, ctx, xPos, width, height, state) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.gravity = .4;
     this.xPos = xPos;
     this.width = width;
     this.height = height;
+    this.currentState = "Splash";
     this.yPos = canvas.height / 2;
     this.yVel = 0;
     this.dead = false;
@@ -487,35 +499,44 @@ class Bird {
     this.spritePicker = 0;
     this.image = new Image();
     this.image.src = 'res/flappybird2.png';
-    this.die =  this.die.bind(this);
+    this.die = this.die.bind(this);
     this.deathSound = new Audio;
     this.deathSound.src = 'res/sounds/sfx_die.wav';
     this.flapSound = new Audio;
     this.flapSound.src = 'res/sounds/sfx_wing.wav';
   }
 
-  update() {
-    this.frames += .3;
-    this.yPos += this.yVel;
-    if (this.yVel < this.termVelocity) {
-      this.yVel += this.gravity;
-    }
+  update(state = 'Splash') {
+    this.frames += .09;
     this.spritePicker = Math.floor(this.frames) % 3;
+    this.currentState = state;
 
-    if(this.dead){
-      if (this.yPos < 490){
-        this.yVel += 2;
-      } else {
-        this.yVel = 0;
-        this.gravity = 0;
-        this.yPos = 490;
-      }
+    switch (this.currentState) {
+      case 'Splash':
+        this.yPos += this.yVel;
+        break;
+      case 'Running':
+        if (this.yVel < this.termVelocity) {
+          this.yVel += this.gravity;
+        }
+        break;
+      case 'GameOver':
+        if (this.yPos < 490) {
+          this.yVel += 2;
+        } else {
+          this.yVel = 0;
+          this.gravity = 0;
+          this.yPos = 490;
+        }
+        break;
+      default:
+
     }
   }
 
   render() {
     this.ctx.save();
-    this.ctx.translate(this.xPos + this.width/2, this.yPos + this.height/2);
+    this.ctx.translate(this.xPos + this.width / 2, this.yPos + this.height / 2);
     if (this.yVel < 0) {
       this.ctx.rotate(-30 * Math.PI / 360);
     }
@@ -535,8 +556,7 @@ class Bird {
       this.ctx.rotate(120 * Math.PI / 360);
       this.spritePicker = 2;
     }
-    this.ctx.translate(-(this.xPos + this.width/2),
-    -(this.yPos + this.height/2));
+    this.ctx.translate(-(this.xPos + this.width / 2), -(this.yPos + this.height / 2));
     var spriteWidth = this.image.width / 3 * this.spritePicker;
     //debugging
 
@@ -566,9 +586,9 @@ class Bird {
     this.flapSound.play();
   }
 
-  die(){
-  this.dead = true;
-  this.deathSound.play();
+  die() {
+    this.dead = true;
+    this.deathSound.play();
   }
 }
 
