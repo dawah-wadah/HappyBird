@@ -214,8 +214,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-  canvas.width = 800;
-  canvas.height = 617;
+  canvas.width = 700;
+  canvas.height = 736;
   const frames = 0;
   const game = new __WEBPACK_IMPORTED_MODULE_0__game_js__["a" /* default */](canvas, ctx, frames);
   game.gameLoop();
@@ -289,7 +289,7 @@ class Game {
     this.foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](this.canvas, this.ctx, this.speed);
     this.splashScreen = new __WEBPACK_IMPORTED_MODULE_7__splashScreen_js__["a" /* default */](this.canvas, this.ctx);
     this.playerName = prompt("Welcome to Happy Bird! Please enter your name for the leaderboards.");
-    this.bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, 200, 70, 48);
+    this.bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, canvas.width/4 , 70, 48);
     this.pipes = [];
     this.trees = [];
     this.gameID = 0;
@@ -345,7 +345,7 @@ class Game {
 
 
   _generateRandomPipes(context, canvasObject) {
-    let lengthTop = Math.floor(Math.random() * 200 + 100);
+    let lengthTop = Math.floor(Math.random() * 300 + 100);
     let lengthBottom = canvasObject.height - 150 - lengthTop;
     let returnVal = {};
     returnVal.top = new __WEBPACK_IMPORTED_MODULE_4__pipe_js__["a" /* default */](canvasObject.width,
@@ -784,7 +784,7 @@ class Foreground {
     this.speed = 16/(speed * 4);
     this.width = 336;
     this.height = 112;
-    this.yPos = 505;
+    this.yPos = 624;
     this.image = new Image();
     this.image.src = 'res/ground.png';
   }
@@ -832,7 +832,7 @@ class Tree {
     this.ctx.drawImage(this.image, spriteWidth, 11,
        this.image.width / 4, 100,
        this.xPos,
-       505 - 90, 100, 100);
+       624 - 90, 100, 100);
   }
 }
 
@@ -844,20 +844,24 @@ class Tree {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__ = __webpack_require__(14);
+
+
 class Background {
   constructor(canvas, ctx, speed) {
     this.canvas = canvas;
     this.ctx = ctx;
     this.xPos = 0;
+    this.time = 'day';
     this.speed = speed / 7;
-    this.width = 288;
+    this.width = 230;
     this.bgImg = new Image();
-    this.bgImg.src = 'res/bg.png';
+    this.bgImg.src = 'res/TheBird2.png';
   }
 
 
 
-update() {
+update(score) {
     this.xPos -= this.speed;
     if (this.xPos < -this.width) {
       this.xPos = 0;
@@ -866,7 +870,16 @@ update() {
 
 render() {
     for (var i = 0; i < this.canvas.width / this.width + 1; i++) {
-      this.ctx.drawImage(this.bgImg, this.xPos + i * this.width, 0);
+      this.ctx.drawImage(this.bgImg,
+        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.x,
+        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.y,
+        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.width,
+        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.height,
+        this.xPos + i * this.width,
+        0,
+        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.width,
+        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.height
+       );
     }
   }
 }
@@ -940,7 +953,7 @@ class Score {
     this.score = 0;
     this.width = width;
     this.height = height;
-    this.xPos = this.canvas.width /2;
+    this.xPos = this.canvas.width /2 - this.width / 2;
     this.yPos = this.height;
     this.image = new Image();
     this.image.src = 'res/score.png';
@@ -1151,7 +1164,7 @@ class SplashScreen {
     this.canvas = canvas;
     this.ctx = ctx;
     this.height = 200;
-    this.width = 200;
+    this.width = 300;
     this.xPos = this.canvas.width / 2 - this.width / 2;
     this.yPos = this.canvas.height / 2 - this.height/ 2;
     this.image = new Image();
@@ -1171,7 +1184,7 @@ class SplashScreen {
       __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].getReadyIcon.height,
       this.xPos,
       this.yPos  - this.yPos/2,
-      this.width + 100,
+      this.width,
       this.height / 2
     );
     this.ctx.drawImage(this.image,
@@ -1181,7 +1194,7 @@ class SplashScreen {
       __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].tapIcon.height,
       this.xPos,
       this.yPos,
-      this.width + 100,
+      this.width,
       this.height
     );
   }
@@ -1254,6 +1267,30 @@ class Highscore {
 
 
 /* harmony default export */ __webpack_exports__["a"] = (Highscore);
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const backgroundAnimation = {
+  day: {
+    x: 402,
+    y: 8,
+    width: 632 - 402,
+    height: 624,
+  },
+  night: {
+    x: 167,
+    y: 8,
+    width: 632 - 402,
+    height: 624,
+  }
+
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = backgroundAnimation;
+
 
 
 /***/ })
