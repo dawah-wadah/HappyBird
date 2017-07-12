@@ -459,6 +459,9 @@ class Game {
 
 
   gameRunningScreen() {
+    if (this.score > 1) {
+      this.background.time = false;
+    }
     this.assetsMaker();
     this.checkCollisions();
     this.background.update();
@@ -852,7 +855,7 @@ class Background {
     this.canvas = canvas;
     this.ctx = ctx;
     this.xPos = 0;
-    this.time = 'day';
+    this.time = true;
     this.speed = speed / 7;
     this.width = 230;
     this.bgImg = new Image();
@@ -861,7 +864,7 @@ class Background {
 
 
 
-update(score) {
+update() {
     this.xPos -= this.speed;
     if (this.xPos < -this.width) {
       this.xPos = 0;
@@ -869,16 +872,22 @@ update(score) {
   }
 
 render() {
+  let sprite;
+    if (this.time) {
+      sprite = __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day;
+    } else {
+      sprite = __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].night;
+    }
     for (var i = 0; i < this.canvas.width / this.width + 1; i++) {
       this.ctx.drawImage(this.bgImg,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.x,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.y,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.width,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.height,
+        sprite.x,
+        sprite.y,
+        sprite.width,
+        sprite.height,
         this.xPos + i * this.width,
         0,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.width,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.height
+        sprite.width,
+        sprite.height
        );
     }
   }
@@ -1282,9 +1291,9 @@ const backgroundAnimation = {
     height: 624,
   },
   night: {
-    x: 167,
+    x: 165,
     y: 8,
-    width: 632 - 402,
+    width: 632 - 390,
     height: 624,
   }
 
