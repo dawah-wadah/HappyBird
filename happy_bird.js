@@ -414,14 +414,16 @@ class Game {
     });
 
     if (this._collided(this.bird, this.foreground)) {
+      this.currentState = 'GameOver';
       this.collisionSound.play();
       this.bird.die();
     }
-    if (this.bird.yPos < 0) {
+    if (this.bird.yPos < -150) {
       if (!this.martinCheck) {
+        this.currentState = 'GameOver';
         this.martinCheck = true;
         this.bird.die();
-        window.alert('Stop Cheating Martin');
+        window.alert('You flew too close to the sun, Martin');
       }
     }
 
