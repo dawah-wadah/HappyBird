@@ -496,7 +496,6 @@ class Game {
     this._assetsUpdater(this.pipes, false);
     this._assetsUpdater(this.foreground, false);
     this._assetsUpdater(this.bird, false);
-    this._assetsUpdater(this.scoreTracker, false);
     this.scoreCard.update(this.score, this.highscore);
     this._assetsUpdater(this.scoreCard, false);
     this.sendScore();
@@ -939,7 +938,7 @@ class Score {
     this.score = 0;
     this.width = width;
     this.height = height;
-    this.xPos = this.canvas.width /2 - this.width;
+    this.xPos = this.canvas.width /2;
     this.yPos = this.height;
     this.image = new Image();
     this.image.src = 'res/score.png';
