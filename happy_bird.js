@@ -283,7 +283,7 @@ class Game {
     this.currentState = 'Splash';
     this.ctx = ctx;
     this.frames = frames;
-    // this.currentState = false;
+    this.martinCheck = false;
     this.speed = 7;
     this.background = new __WEBPACK_IMPORTED_MODULE_3__background_js__["a" /* default */](this.canvas, this.ctx, this.speed);
     this.foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](this.canvas, this.ctx, this.speed);
@@ -317,7 +317,7 @@ class Game {
     this.sendScore = this.sendScore.bind(this);
   }
 
-  reset(){
+  reset() {
     this.score = 0;
     this.bird.dead = false;
     this.bird.frames = 0;
@@ -327,6 +327,7 @@ class Game {
     this.pipes = [];
     this.frames = 0;
     this.trees = [];
+    this.martinCheck = false;
   }
 
 
@@ -380,7 +381,7 @@ class Game {
       this.pipes.splice(0, 2);
     }
     if (this.trees.length > 6) {
-      this.trees.splice(0,1);
+      this.trees.splice(0, 1);
     }
   }
 
@@ -411,10 +412,17 @@ class Game {
         this.currentState = 'GameOver';
       }
     });
-    
+
     if (this._collided(this.bird, this.foreground)) {
       this.collisionSound.play();
       this.bird.die();
+    }
+    if (this.bird.yPos < 0) {
+      if (!this.martinCheck) {
+        this.martinCheck = true;
+        this.bird.die();
+        window.alert('Stop Cheating Martin');
+      }
     }
 
   }
@@ -422,22 +430,26 @@ class Game {
   _assetsUpdater(assets, boolean) {
     if (assets.constructor === Array) {
       assets.forEach((asset) => {
-        if (boolean) {asset.update();}
+        if (boolean) {
+          asset.update();
+        }
         asset.render();
       });
     } else {
-      if (boolean) {assets.update();}
+      if (boolean) {
+        assets.update();
+      }
       assets.render();
     }
   }
 
-  gameSplashScreen(){
+  gameSplashScreen() {
 
     this.background.update();
     this._assetsUpdater(this.foreground, true);
     this._assetsUpdater(this.bird, false);
     this.splashScreen.render();
-    if (this.scorePushed){
+    if (this.scorePushed) {
       this.scorePushed = false;
     }
   }
@@ -464,17 +476,20 @@ class Game {
     this._assetsUpdater(this.foreground);
   }
 
-  sendScore(){
+  sendScore() {
     if (!this.scorePushed) {
       this.scorePushed = true;
       let newscore = window.firebase.database().ref("scores").push();
       window.newscore = newscore;
-      newscore.set({username: this.playerName, score: parseInt(this.score)});
+      newscore.set({
+        username: this.playerName,
+        score: parseInt(this.score)
+      });
     }
   }
 
-  gameOverScreen(){
-    if(this.score > this.highscore){
+  gameOverScreen() {
+    if (this.score > this.highscore) {
       this.highscore = this.score;
     }
     this._assetsUpdater(this.trees, false);
@@ -499,19 +514,19 @@ class Game {
 
     switch (this.currentState) {
       case 'Splash':
-      this.gameSplashScreen();
+        this.gameSplashScreen();
         break;
       case 'Running':
-      this.gameRunningScreen();
+        this.gameRunningScreen();
 
         break;
       case 'GameOver':
-      this.gameOverScreen();
+        this.gameOverScreen();
         break;
       default:
     }
 
-    if (this.currentState !== 'Paused' ) {
+    if (this.currentState !== 'Paused') {
       this.gameID = window.requestAnimationFrame(this.gameLoop);
     } else {
       window.cancelAnimationFrame(this.gameID);
