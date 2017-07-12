@@ -5,18 +5,25 @@
   <meta charset="utf-8">
   <title>Floppy Bird</title>
   <style>
+    html{
+      height: 100%;
+      width: 100%;
+    }
     canvas {
-      display: block;
+      display: flex;
       border: 2px solid blue;
       margin: auto;
     }
 
     body {
+      display: flex;
       width: inherit;
-      height: inherit;
+      height: 100%;
       background-image: url('res/htmlWallpaper.jpg') ;
       background-size: cover;
       background-repeat: no-repeat;
+      justify-content: center;
+      align-content: center;
     }
 
     img {
