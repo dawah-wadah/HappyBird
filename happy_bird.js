@@ -262,11 +262,11 @@ document.addEventListener("DOMContentLoaded", () => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foreground_js__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tree_js__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__background_js__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pipe_js__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__score_js__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__scoreCard__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__splashScreen_js__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__highscore_js__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pipe_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__score_js__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__scoreCard__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__splashScreen_js__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__highscore_js__ = __webpack_require__(14);
 
 
 
@@ -461,7 +461,7 @@ class Game {
   gameRunningScreen() {
     this.assetsMaker();
     this.checkCollisions();
-    this.background.update();
+    this.background.update(this.score);
     this.scoreTracker.render();
     this._assetsUpdater(this.trees, true);
     this._assetsUpdater(this.bird, false);
@@ -470,7 +470,10 @@ class Game {
         if (!pipe.checked) {
           pipe.checked = true;
           this.score += .5;
+        }
+        if (pipe.top){
           this.pointSound.play();
+
         }
       }
       this._assetsUpdater(pipe, true);
@@ -551,7 +554,7 @@ class Bird {
   constructor(canvas, ctx, xPos, width, height, state) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
-    this.gravity = .4;
+    this.gravity = .5;
     this.xPos = xPos;
     this.width = width;
     this.height = height;
@@ -844,7 +847,7 @@ class Tree {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__ = __webpack_require__(8);
 
 
 class Background {
@@ -852,33 +855,52 @@ class Background {
     this.canvas = canvas;
     this.ctx = ctx;
     this.xPos = 0;
-    this.time = 'day';
+    this.time = true;
+    this.changedBackground = false;
     this.speed = speed / 7;
     this.width = 230;
     this.bgImg = new Image();
-    this.bgImg.src = 'res/TheBird2.png';
+    this.bgImg.src = 'res/TheBird.png';
+    this.update = this.update.bind(this);
   }
 
 
 
 update(score) {
+
     this.xPos -= this.speed;
     if (this.xPos < -this.width) {
       this.xPos = 0;
     }
+    if (score % 10 === 0 && !this.changedBackground) {
+      this.changedBackground = true;
+      this.time = !this.time;
+    } else if (score % 10 === 0 && this.changedBackground) {
+      this.changedBackground = true;
+    } else {
+      this.changedBackground = false;
+    }
   }
 
 render() {
+
+  let sprite;
+  if (this.time) {
+    sprite = __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day;
+  } else {
+    sprite = __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].night;
+  }
+  this.width = sprite.width;
     for (var i = 0; i < this.canvas.width / this.width + 1; i++) {
       this.ctx.drawImage(this.bgImg,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.x,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.y,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.width,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.height,
+      sprite.x,
+      sprite.y,
+      sprite.width,
+      sprite.height,
         this.xPos + i * this.width,
         0,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.width,
-        __WEBPACK_IMPORTED_MODULE_0__backGroundAnimation_js__["a" /* backgroundAnimation */].day.height
+      sprite.width,
+      sprite.height
        );
     }
   }
@@ -889,6 +911,30 @@ render() {
 
 /***/ }),
 /* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const backgroundAnimation = {
+  day: {
+    x: 402,
+    y: 8,
+    width: 632 - 402,
+    height: 624,
+  },
+  night: {
+    x: 167,
+    y: 8,
+    width: 396 - 167,
+    height: 624,
+  }
+
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = backgroundAnimation;
+
+
+
+/***/ }),
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -939,7 +985,7 @@ class Pipe {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1013,7 +1059,7 @@ if (this.score < 10) {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1152,11 +1198,11 @@ class ScoreCard {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__ = __webpack_require__(13);
 
 
 class SplashScreen {
@@ -1168,7 +1214,7 @@ class SplashScreen {
     this.xPos = this.canvas.width / 2 - this.width / 2;
     this.yPos = this.canvas.height / 2 - this.height/ 2;
     this.image = new Image();
-    this.image.src = 'res/TheBird2.png';
+    this.image.src = 'res/TheBird.png';
 
   }
 
@@ -1195,7 +1241,7 @@ class SplashScreen {
       this.xPos,
       this.yPos,
       this.width,
-      this.height
+      __WEBPACK_IMPORTED_MODULE_0__splashAnimations_js__["a" /* splashAnimation */].tapIcon.height
     );
   }
 }
@@ -1204,7 +1250,7 @@ class SplashScreen {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1219,7 +1265,7 @@ const splashAnimation = {
     x: 898,
     y: 175,
     width: 1042 - 890,
-    height: 302 - 169,
+    height: 352 - 175,
   }
 
 };
@@ -1228,7 +1274,7 @@ const splashAnimation = {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1267,30 +1313,6 @@ class Highscore {
 
 
 /* harmony default export */ __webpack_exports__["a"] = (Highscore);
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const backgroundAnimation = {
-  day: {
-    x: 402,
-    y: 8,
-    width: 632 - 402,
-    height: 624,
-  },
-  night: {
-    x: 167,
-    y: 8,
-    width: 632 - 402,
-    height: 624,
-  }
-
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = backgroundAnimation;
-
 
 
 /***/ })
