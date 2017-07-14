@@ -66,4 +66,4 @@ This project will be implemented with the following technologies:
 Really diverge from the pact and use custom sprites, again dependent on how well I can design digitally and if inspiration hits me through at some point during the exercise
 
 - [ ] Make the background Parallax (may have to incorporate a library)
-- [ ] Incoropate Firebase for a global highscore system
+- [ ] Incorporate Firebase for a global highscore system
