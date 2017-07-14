@@ -562,7 +562,7 @@ class Bird {
     this.yPos = canvas.height / 2;
     this.yVel = 0;
     this.dead = false;
-    this.termVelocity = 4;
+    this.termVelocity = 5;
     this.frames = 0;
     this.spritePicker = 0;
     this.image = new Image();
