@@ -321,7 +321,7 @@ class Game {
     this.score = 0;
     this.bird.dead = false;
     this.bird.frames = 0;
-    this.bird.gravity = .4;
+    this.bird.gravity = .55;
     this.bird.yPos = this.canvas.height / 2;
     this.bird.yVel = 0;
     this.pipes = [];
@@ -345,7 +345,7 @@ class Game {
 
 
   _generateRandomPipes(context, canvasObject) {
-    let lengthTop = Math.floor(Math.random() * 300 + 100);
+    let lengthTop = Math.floor(Math.random() * 200 + 100);
     let lengthBottom = canvasObject.height - 150 - lengthTop;
     let returnVal = {};
     returnVal.top = new __WEBPACK_IMPORTED_MODULE_4__pipe_js__["a" /* default */](canvasObject.width,
@@ -554,7 +554,7 @@ class Bird {
   constructor(canvas, ctx, xPos, width, height, state) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
-    this.gravity = .5;
+    this.gravity = .6;
     this.xPos = xPos;
     this.width = width;
     this.height = height;
