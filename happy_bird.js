@@ -267,6 +267,8 @@ document.addEventListener("DOMContentLoaded", () => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__scoreCard__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__splashScreen_js__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__highscore_js__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__play_pause_js__ = __webpack_require__(15);
+
 
 
 
@@ -288,7 +290,6 @@ class Game {
     this.background = new __WEBPACK_IMPORTED_MODULE_3__background_js__["a" /* default */](this.canvas, this.ctx, this.speed);
     this.foreground = new __WEBPACK_IMPORTED_MODULE_1__foreground_js__["a" /* default */](this.canvas, this.ctx, this.speed);
     this.splashScreen = new __WEBPACK_IMPORTED_MODULE_7__splashScreen_js__["a" /* default */](this.canvas, this.ctx);
-    this.playerName = prompt("Welcome to Happy Bird! Please enter your name for the leaderboards.");
     this.bird = new __WEBPACK_IMPORTED_MODULE_0__bird_js__["a" /* default */](canvas, ctx, canvas.width/4 , 70, 48);
     this.pipes = [];
     this.trees = [];
@@ -296,6 +297,7 @@ class Game {
     this.score = 0;
     this.scorePushed = false;
     this.highscore = 0;
+    this.pauseGame = this.pauseGame.bind(this);
     this.scoreTracker = new __WEBPACK_IMPORTED_MODULE_5__score_js__["a" /* default */](this.canvas, this.ctx, 100, 100);
     this.scoreCard = new __WEBPACK_IMPORTED_MODULE_6__scoreCard__["a" /* default */](this.canvas, this.ctx);
     this.highscores = new __WEBPACK_IMPORTED_MODULE_8__highscore_js__["a" /* default */](this.canvas, this.ctx, this.scoreCard);
@@ -303,6 +305,8 @@ class Game {
     this.collisionSound.src = 'res/sounds/sfx_hit.wav';
     this.pointSound = new Audio();
     this.pointSound.src = 'res/sounds/sfx_point.wav';
+    this.pause = new __WEBPACK_IMPORTED_MODULE_9__play_pause_js__["a" /* default */](this.canvas, this.ctx, 0, this.pauseGame, this.currentState);
+    this.playerName = prompt("Welcome to Happy Bird! Please enter your name for the leaderboards.");
 
 
     this._generateRandomPipes = this._generateRandomPipes.bind(this);
@@ -499,7 +503,6 @@ class Game {
     }
     this._assetsUpdater(this.trees, false);
     this._assetsUpdater(this.pipes, false);
-    this._assetsUpdater(this.foreground, false);
     this._assetsUpdater(this.bird, false);
     this.scoreCard.update(this.score, this.highscore);
     this._assetsUpdater(this.scoreCard, false);
@@ -515,6 +518,7 @@ class Game {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.scoreTracker.update(Math.floor(this.score));
     this.background.render();
+    this.pause.update(this.currentState);
 
     switch (this.currentState) {
       case 'Splash':
@@ -527,8 +531,16 @@ class Game {
       case 'GameOver':
         this.gameOverScreen();
         break;
+      case 'Paused':
+        this.bird.render();
+        this.scoreTracker.render();
+        this._assetsUpdater(this.trees, false);
+        this._assetsUpdater(this.pipes, false);
+        break;
       default:
     }
+    this.foreground.render();
+    this.pause.render();
 
     if (this.currentState !== 'Paused') {
       this.gameID = window.requestAnimationFrame(this.gameLoop);
@@ -575,7 +587,7 @@ class Bird {
   }
 
   update(state = 'Splash') {
-    this.frames += .09;
+    this.frames += .2;
     this.spritePicker = Math.floor(this.frames) % 3;
     this.currentState = state;
     this.yPos += this.yVel;
@@ -587,12 +599,12 @@ class Bird {
         }
         break;
       case 'GameOver':
-        if (this.yPos < 490) {
+        if (this.yPos < 627 - this.width) {
           this.yVel += 2;
         } else {
           this.yVel = 0;
           this.gravity = 0;
-          this.yPos = 490;
+          this.yPos = 627 - this.width;
         }
         break;
       default:
@@ -603,21 +615,9 @@ class Bird {
   render() {
     this.ctx.save();
     this.ctx.translate(this.xPos + this.width / 2, this.yPos + this.height / 2);
-    if (this.yVel < 0) {
-      this.ctx.rotate(-30 * Math.PI / 360);
-    }
-    if (this.yVel > 1 && this.yVel < 2) {
-      this.ctx.rotate(45 * Math.PI / 360);
-      this.spritePicker = 1;
-    }
-    if (this.yVel > 2 && this.yVel < 3) {
-      this.ctx.rotate(60 * Math.PI / 360);
-      this.spritePicker = 2;
-    }
-    if (this.yVel > 3) {
-      this.ctx.rotate(70 * Math.PI / 360);
-      this.spritePicker = 2;
-    }
+    this.ctx.rotate(this.yVel * 15 * Math.PI / 360);
+    if (this.yVel > 1)
+    { this.spritePicker = 1;}
     if (this.dead) {
       this.ctx.rotate(120 * Math.PI / 360);
       this.spritePicker = 2;
@@ -648,7 +648,7 @@ class Bird {
   jump() {
     this.spritePicker = 0;
     this.yVel = -8;
-    this.frames += .1;
+    this.frames += .05;
     this.flapSound.play();
   }
 
@@ -1313,6 +1313,93 @@ class Highscore {
 
 
 /* harmony default export */ __webpack_exports__["a"] = (Highscore);
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__playPauseAnimation_js__ = __webpack_require__(16);
+
+
+
+class PlayPause {
+  constructor(canvas, ctx, sprite, callback, state) {
+    this.canvas = canvas;
+
+    this.ctx = ctx;
+    this.state = state;
+    this.callback = callback;
+    this.spritePicker = sprite;
+    this.xPos = canvas.width * .80;
+    this.width = 100;
+    this.height = 100;
+    this.yPos = canvas.height * .10;
+    this.image = new Image();
+    this.image.src = 'res/pause-play.jpg';
+    this.pause = this.pause.bind(this);
+    this.canvas.addEventListener('click', this.pause, false);
+  }
+
+  pause(e){
+    if (e.offsetX > this.xPos
+    && e.offsetX < this.xPos + this.width
+    && e.offsetY > this.yPos
+    && e.offsetY < this.yPos + this.height
+  && (this.state === 'Running' || this.state === 'Paused'))
+    {
+      this.callback();
+    }
+  }
+
+
+
+  update(state){
+    this.state = state;
+    this.state === 'Paused' ? this.spritePicker = 1 : this.spritePicker = 0;
+  }
+
+  render(){
+    this.ctx.drawImage(this.image,
+      __WEBPACK_IMPORTED_MODULE_0__playPauseAnimation_js__["a" /* animation */][this.spritePicker % 2].x,
+      __WEBPACK_IMPORTED_MODULE_0__playPauseAnimation_js__["a" /* animation */][this.spritePicker % 2].y,
+      __WEBPACK_IMPORTED_MODULE_0__playPauseAnimation_js__["a" /* animation */][this.spritePicker % 2].width,
+      __WEBPACK_IMPORTED_MODULE_0__playPauseAnimation_js__["a" /* animation */][this.spritePicker % 2].height,
+      this.xPos,
+      this.yPos,
+      this.width,
+      this.height
+    );
+  }
+
+
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (PlayPause);
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const animation = [
+  {
+    x: 174 / 2 * 0,
+    y: 0,
+    width:174 / 2 ,
+    height: 96,
+  },
+  {
+    x: 174 / 2 * 1 ,
+    y: 0,
+    width:174 / 2,
+    height: 96,
+  },
+];
+/* harmony export (immutable) */ __webpack_exports__["a"] = animation;
+
 
 
 /***/ })
