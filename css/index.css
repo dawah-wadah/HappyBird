@@ -1,0 +1,109 @@
+html {
+  height: 100%;
+  width: 100%;
+}
+canvas {
+  display: flex;
+  /*border: 2px solid blue;*/
+  margin: auto;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background-image: url("../res/htmlWallpaper.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  justify-content: center;
+  flex-direction: column;
+}
+.logo {
+  display: flex;
+  justify-content: center;
+  height: 30%;
+  /*background-image: url('res/logo.png');
+  background-size: cover;
+  height: 300px;
+  width: 200px;*/
+}
+.logo img {
+  height: inherit;
+  max-height: 30vh;
+  width: auto;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  text-align: center;
+  font-family: "Lato", sans-serif;
+  font-size: 30px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+p {
+  text-align: center;
+  display: block;
+  -webkit-margin-before: 0em;
+  -webkit-margin-after: 0em;
+  -webkit-margin-start: 0px;
+  -webkit-margin-end: 0px;
+}
+
+input[type="submit"] {
+  width: 100%;
+  background-color: #00c65d;
+  color: white;
+  padding: 14px 20px;
+  margin-top: 100px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+input[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+form {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+div#form {
+  position: absolute;
+  top: calc((100% - 27%) / 2);
+  left: calc((100% - 26%) / 2);
+  margin: auto auto;
+  border-radius: 10px;
+  background-color: #f0eaa1;
+  padding: 20px;
+  width: 26%;
+  height: 250px;
+  max-width: 661px;
+  align-self: center;
+}
+
+#gameScreen {
+  display: flex;
+}
+
+.hidden {
+  display: none;
+}
+
+.canvas-container {
+  display: flex;
+  justify-content: center;
+}
+
+/*img {
+  display: none;
+}*/

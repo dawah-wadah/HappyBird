@@ -209,47 +209,55 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game_js__ = __webpack_require__(2);
 
 
-
-
 document.addEventListener("DOMContentLoaded", () => {
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
   canvas.width = 700;
   canvas.height = 736;
   const frames = 0;
   const game = new __WEBPACK_IMPORTED_MODULE_0__game_js__["a" /* default */](canvas, ctx, frames);
   game.gameLoop();
 
-  document.addEventListener('keypress', (e) => {
-    console.log(e.keyCode);
-    switch (e.keyCode) {
-      case 32:
+  let playerID = document.getElementById("fname");
+  let submitButton = document.getElementById("submit");
 
-      switch (game.currentState) {
-        case 'Splash':
-        game.currentState = 'Running';
-        game.bird.jump();
+  submitButton.onclick = e => {
+    e.preventDefault();
+    console.log(playerID.value);
+    let modal = document.getElementById("form");
+    modal.className += "hidden";
+    window.playerName = playerID.value;
+  };
 
+  document.addEventListener("keypress", e => {
+    if (window.playerName) {
+      switch (e.keyCode) {
+        case 32:
+          switch (game.currentState) {
+            case "Splash":
+              game.currentState = "Running";
+              game.bird.jump();
+
+              break;
+            case "Running":
+              game.bird.jump();
+
+              break;
+            case "GameOver":
+              game.currentState = "Splash";
+              game.reset();
+              break;
+            default:
+          }
           break;
-        case 'Running':
-        game.bird.jump();
-
-          break;
-        case 'GameOver':
-        game.currentState = 'Splash';
-        game.reset();
+        case 112:
+          game.pauseGame();
           break;
         default:
+          console.log("this is not the key you are looking for");
       }
-      break;
-      case 112:
-      game.pauseGame();
-      break;
-      default:
-      console.log('this is not the key you are looking for');
     }
   });
-
 });
 
 
@@ -306,7 +314,6 @@ class Game {
     this.pointSound = new Audio();
     this.pointSound.src = 'res/sounds/sfx_point.wav';
     this.pause = new __WEBPACK_IMPORTED_MODULE_9__play_pause_js__["a" /* default */](this.canvas, this.ctx, 0, this.pauseGame, this.currentState);
-    this.playerName = prompt("Welcome to Happy Bird! Please enter your name for the leaderboards.");
 
 
     this._generateRandomPipes = this._generateRandomPipes.bind(this);
@@ -491,7 +498,7 @@ class Game {
       let newscore = window.firebase.database().ref("scores").push();
       window.newscore = newscore;
       newscore.set({
-        username: this.playerName,
+        username: window.playerName,
         score: parseInt(this.score)
       });
     }
