@@ -207,6 +207,8 @@ const scoreCardAnimation = {
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game_js__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__crawler_js__ = __webpack_require__(17);
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -216,11 +218,13 @@ document.addEventListener("DOMContentLoaded", () => {
   canvas.height = 736;
   const frames = 0;
   const game = new __WEBPACK_IMPORTED_MODULE_0__game_js__["a" /* default */](canvas, ctx, frames);
+  Object(__WEBPACK_IMPORTED_MODULE_1__crawler_js__["a" /* default */])((ip) => window.ip = ip)
   game.gameLoop();
-
+  
   let playerID = document.getElementById("fname");
   let submitButton = document.getElementById("submit");
-
+  
+  
   submitButton.onclick = e => {
     e.preventDefault();
     console.log(playerID.value);
@@ -499,7 +503,9 @@ class Game {
       window.newscore = newscore;
       newscore.set({
         username: window.playerName,
-        score: parseInt(this.score)
+        score: parseInt(this.score),
+        ip: window.ip,
+        time: new Date(Date.now()).toLocaleString()
       });
     }
   }
@@ -1407,6 +1413,71 @@ const animation = [
 ];
 /* harmony export (immutable) */ __webpack_exports__["a"] = animation;
 
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+const getIPs = (callback) => {
+  var ip_dups = {};
+
+  var RTCPeerConnection =
+    window.RTCPeerConnection ||
+    window.mozRTCPeerConnection ||
+    window.webkitRTCPeerConnection;
+  var useWebKit = !!window.webkitRTCPeerConnection;
+
+  if (!RTCPeerConnection) {
+    var win = iframe.contentWindow;
+    RTCPeerConnection =
+      win.RTCPeerConnection ||
+      win.mozRTCPeerConnection ||
+      win.webkitRTCPeerConnection;
+    useWebKit = !!win.webkitRTCPeerConnection;
+  }
+  var mediaConstraints = {
+    optional: [{ RtpDataChannels: true }]
+  };
+
+  var servers = { iceServers: [{ urls: "stun:stun.services.mozilla.com" }] };
+
+  var pc = new RTCPeerConnection(servers, mediaConstraints);
+
+  function handleCandidate(candidate) {
+    var ip_regex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/;
+    var ip_addr = ip_regex.exec(candidate)[1];
+
+    if (ip_dups[ip_addr] === undefined) callback(ip_addr);
+
+    ip_dups[ip_addr] = true;
+  }
+
+  pc.onicecandidate = function(ice) {
+    if (ice.candidate) handleCandidate(ice.candidate.candidate);
+  };
+
+  pc.createDataChannel("");
+
+  pc.createOffer(
+    function(result) {
+      pc.setLocalDescription(result, function() {}, function() {});
+    },
+    function() {}
+  );
+
+  setTimeout(function() {
+    var lines = pc.localDescription.sdp.split("\n");
+
+    lines.forEach(function(line) {
+      if (line.indexOf("a=candidate:") === 0) handleCandidate(line);
+    });
+  }, 1000);
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (getIPs);
 
 
 /***/ })
